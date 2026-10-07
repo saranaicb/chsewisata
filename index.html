@@ -152,11 +152,11 @@
                                     <p class="text-xs text-slate-700 mt-0.5" x-text="item.keterangan"></p>
                                 </div>
 
-                                <!-- Foto Laporan (Bisa diklik untuk Full View) -->
+                                <!-- Foto Laporan (Menggunakan fixUrl agar aman di HTTPS Smartphone) -->
                                 <template x-if="item.foto">
                                     <div>
                                         <p class="text-[9px] font-medium text-slate-400 mb-1">Foto Laporan (ketuk untuk memperbesar):</p>
-                                        <img :src="item.foto" @click="openFullImage(item.foto)" class="w-full h-24 object-cover rounded-lg border border-slate-100 cursor-pointer hover:opacity-90 transition" loading="lazy">
+                                        <img :src="fixUrl(item.foto)" @click="openFullImage(fixUrl(item.foto))" class="w-full h-24 object-cover rounded-lg border border-slate-100 cursor-pointer hover:opacity-90 transition" loading="lazy">
                                     </div>
                                 </template>
 
@@ -169,7 +169,7 @@
                                             <template x-if="item.dokTindakLanjut">
                                                 <div>
                                                     <p class="text-[9px] font-medium text-slate-400 mt-1">Dokumentasi Tindak Lanjut (ketuk untuk memperbesar):</p>
-                                                    <img :src="item.dokTindakLanjut" @click="openFullImage(item.dokTindakLanjut)" class="w-full h-20 object-cover rounded mt-1 cursor-pointer hover:opacity-90 transition" loading="lazy">
+                                                    <img :src="fixUrl(item.dokTindakLanjut)" @click="openFullImage(fixUrl(item.dokTindakLanjut))" class="w-full h-20 object-cover rounded mt-1 cursor-pointer hover:opacity-90 transition" loading="lazy">
                                                 </div>
                                             </template>
                                         </div>
@@ -334,12 +334,22 @@
 
     </div>
 
-    <!-- Script Kompresi Super Cepat & Ringan -->
+    <!-- Script Utama (Dilengkapi fixUrl untuk keamanan HTTPS Smartphone) -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZY_54xQw40t00fIFNTOfEj0n6TStGT3z1rwy9Or0pxmBpewv6mcRsPkM6APKbveBb/exec';
         const IMGBB_API_KEY = 'ff6b62f8524e82b7815501fb43d05353';
 
-        // KOMPRESI TINGKAT LANJUT (MaxWidth 600px, Quality 0.6 agar ukuran file sangat kecil & upload kilat)
+        // Fungsi Pembersih URL: Memaksa semua gambar dari ImgBB menggunakan HTTPS agar aman di Smartphone
+        function fixUrl(url) {
+            if (!url) return '';
+            // Jika URL dimulai dengan http://, ubah otomatis menjadi https://
+            if (url.startsWith('http://')) {
+                return url.replace('http://', 'https://');
+            }
+            return url;
+        }
+
+        // Fungsi Kompresi Gambar Otomatis
         function compressImage(file, maxWidth = 600, quality = 0.6) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
