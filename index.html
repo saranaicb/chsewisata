@@ -130,7 +130,7 @@
                     <!-- Judul Khusus Cetak (Tanpa Kop Surat) -->
                     <div class="hidden print:block mb-4 border-b pb-2">
                         <h1 class="text-base font-bold text-slate-900">REKAP LAPORAN MONITORING AREA CHSE</h1>
-                        <p class="text-xs text-slate-500">Tanggal Cetak: <span x-text="currentDate"></span></p>
+                        <p class="text-xs text-slate-500">Tanggal Cetak: <span x-text="getWIBDateStr()"></span></p>
                     </div>
 
                     <!-- TAB 1: DAFTAR LAPORAN -->
@@ -327,7 +327,7 @@
 
     </div>
 
-    <!-- Script Logika Aplikasi Terhubung ImgBB & Google Apps Script -->
+    <!-- Script Logika Aplikasi Terhubung ImgBB & Google Apps Script (WIB) -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZY_54xQw40t00fIFNTOfEj0n6TStGT3z1rwy9Or0pxmBpewv6mcRsPkM6APKbveBb/exec';
         const IMGBB_API_KEY = 'ff6b62f8524e82b7815501fb43d05353';
@@ -343,7 +343,6 @@
                 loadingText: 'Memproses...',
                 showModalImage: false,
                 activeImage: '',
-                currentDate: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
                 accounts: [],
                 reports: [],
                 securityPin: '070707', // Tersembunyi total tanpa hint
@@ -355,6 +354,20 @@
 
                 init() {
                     this.fetchData();
+                },
+
+                // Fungsi Format Tanggal & Waktu Zona Waktu Indonesia Barat (WIB)
+                getWIBDateStr() {
+                    const options = { 
+                        timeZone: 'Asia/Jakarta', 
+                        day: 'numeric', 
+                        month: 'short', 
+                        year: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false
+                    };
+                    return new Intl.DateTimeFormat('id-ID', options).format(new Date()) + ' WIB';
                 },
 
                 fetchData() {
@@ -432,7 +445,7 @@
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
-                        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        date: this.getWIBDateStr(), // Menggunakan format waktu WIB
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
                         foto: photoUrl,
