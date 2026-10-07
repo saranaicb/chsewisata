@@ -2,833 +2,330 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Unit - Yayasan Insan Cinta Bakti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring CHSE - SMK ICB Cinta Wisata</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
         @media print {
-            body { background: white !important; color: black !important; }
+            body * { visibility: hidden !important; }
+            #printable-area, #printable-area * { visibility: visible !important; }
+            #printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; }
             .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            .page-break { page-break-after: always; }
         }
-        .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-100 font-sans text-slate-800 antialiased">
 
-    <!-- TOP HEADER / NAVBAR -->
-    <header class="no-print bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-        <div class="max-w-md mx-auto sm:max-w-7xl px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white shadow-lg text-lg">
-                    YICB
-                </div>
-                <div>
-                    <h1 class="text-xs sm:text-sm font-bold text-slate-100 tracking-tight leading-tight">YAYASAN INSAN CINTA BAKTI</h1>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <span id="cloud-status-indicator" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <p id="cloud-status-text" class="text-[10px] text-emerald-300 font-semibold">ImgBB + Google Sheets Active</p>
+    <!-- Loading Indicator Sinkronisasi -->
+    <div id="loading-sync" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center text-white font-bold text-sm gap-2">
+        <i class="fa-solid fa-spinner fa-spin text-xl"></i> Memuat data dari server...
+    </div>
+
+    <div id="app" class="min-h-screen flex flex-col justify-between">
+        <!-- HALAMAN LOGIN -->
+        <div id="login-page" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900">
+            <div class="bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl p-6 sm:p-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-28 h-28 bg-white rounded-full mb-3 shadow-md border-4 border-amber-400/80 p-1.5 overflow-hidden">
+                        <img src="https://lh3.googleusercontent.com/d/1w9R82j8zW7yK5mX4l2v3b1n9c8x7z6q5=s400" alt="Logo" class="w-full h-full object-contain rounded-full">
                     </div>
+                    <h1 class="text-xl font-black text-slate-900">TIM CHSE</h1>
+                    <p class="text-xs text-slate-600">SMK ICB Cinta Wisata</p>
                 </div>
-            </div>
-
-            <div id="user-badge" class="hidden flex items-center gap-2">
-                <div class="text-right hidden sm:block">
-                    <p id="user-display-name" class="text-xs font-bold text-slate-200">Admin</p>
-                    <span id="user-role-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Penginput</span>
-                </div>
-                <button onclick="openModal('modal-profile')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
-                    <i data-lucide="user-cog" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="flex-grow pb-24 sm:pb-10">
-
-        <!-- LOGIN PAGE VIEW -->
-        <section id="view-login" class="max-w-md mx-auto px-4 py-8 min-h-[85vh] flex flex-col justify-center">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/60 relative overflow-hidden">
-                <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                <div class="text-center mb-6 relative">
-                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center mb-3 shadow-inner">
-                        <i data-lucide="shield-check" class="w-8 h-8"></i>
-                    </div>
-                    <h2 class="text-xl font-extrabold text-slate-900">Akses Masuk Sistem</h2>
-                    <p class="text-xs text-slate-500 mt-1">Yayasan Insan Cinta Bakti Monitoring Portal</p>
-                </div>
-
-                <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Username</label>
-                        <div class="relative">
-                            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
-                            <input type="text" id="login-username" required placeholder="Masukkan username"
-                                class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-                        </div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Username</label>
+                        <input type="text" id="username" required class="w-full px-3.5 py-3 border rounded-xl text-sm bg-slate-50" placeholder="Username">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                        <div class="relative">
-                            <i data-lucide="key-round" class="w-4 h-4 absolute left-3 top-3.5 text-slate-400"></i>
-                            <input type="password" id="login-password" required placeholder="Masukkan password"
-                                class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-                        </div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                        <input type="password" id="password" required class="w-full px-3.5 py-3 border rounded-xl text-sm bg-slate-50" placeholder="Password">
                     </div>
-
-                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-500/30 transition flex items-center justify-center gap-2">
-                        <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang
-                    </button>
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Masuk Sistem</button>
                 </form>
             </div>
-        </section>
-
-        <!-- DASHBOARD CONTAINER -->
-        <div id="view-dashboard" class="hidden max-w-md mx-auto sm:max-w-7xl px-4 pt-4">
-
-            <!-- ROLE NOTICE BANNER -->
-            <div id="role-notice-banner" class="no-print mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 text-xs flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="eye" class="w-4 h-4 text-amber-600"></i>
-                    <span>Anda masuk sebagai <b>Mode Pembaca (Sarana)</b>. Form input & tombol hapus dibatasi.</span>
-                </div>
-            </div>
-
-            <!-- UNIT QUICK SUMMARY CARDS -->
-            <div class="no-print grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
-                <div onclick="filterUnit('Cinta Wisata')" class="cursor-pointer bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm hover:border-emerald-300 transition">
-                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Cinta Wisata</span>
-                    <div class="flex items-center justify-between mt-1">
-                        <span id="count-wisata" class="text-base font-extrabold text-slate-800">0 Log</span>
-                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <i data-lucide="palmtree" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                </div>
-                <div onclick="filterUnit('Cinta Niaga')" class="cursor-pointer bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm hover:border-emerald-300 transition">
-                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Cinta Niaga</span>
-                    <div class="flex items-center justify-between mt-1">
-                        <span id="count-niaga" class="text-base font-extrabold text-slate-800">0 Log</span>
-                        <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                </div>
-                <div onclick="filterUnit('Cinta Teknika')" class="cursor-pointer bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm hover:border-emerald-300 transition">
-                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Cinta Teknika</span>
-                    <div class="flex items-center justify-between mt-1">
-                        <span id="count-teknika" class="text-base font-extrabold text-slate-800">0 Log</span>
-                        <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                            <i data-lucide="cpu" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                </div>
-                <div onclick="filterUnit('Poljan')" class="cursor-pointer bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm hover:border-emerald-300 transition">
-                    <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Poljan</span>
-                    <div class="flex items-center justify-between mt-1">
-                        <span id="count-poljan" class="text-base font-extrabold text-slate-800">0 Log</span>
-                        <div class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 1: FORM INPUT MONITORING (ADMIN ONLY) -->
-            <section id="tab-form" class="no-print space-y-4">
-                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800">Form Input Monitoring Baru</h3>
-                            <p class="text-[11px] text-slate-400">Upload foto via ImgBB Server & Simpan ke Google Sheets</p>
-                        </div>
-                    </div>
-
-                    <form id="form-monitoring" onsubmit="handleSaveMonitoring(event)" class="space-y-3.5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Unit Yayasan *</label>
-                                <select id="input-unit" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                                    <option value="">-- Pilih Unit --</option>
-                                    <option value="Cinta Wisata">Cinta Wisata</option>
-                                    <option value="Cinta Niaga">Cinta Niaga</option>
-                                    <option value="Cinta Teknika">Cinta Teknika</option>
-                                    <option value="Poljan">Poljan</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Monitoring *</label>
-                                <input type="date" id="input-tanggal" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Detail Kegiatan *</label>
-                            <textarea id="input-kegiatan" rows="2.5" required placeholder="Jelaskan kegiatan monitoring yang telah dilaksanakan..."
-                                class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Internet Speed (Mbps) *</label>
-                                <div class="relative">
-                                    <input type="number" id="input-speed" required placeholder="Contoh: 50" min="1"
-                                        class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                    <span class="absolute right-3 top-3 text-[10px] text-slate-400 font-bold">Mbps</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Dokumentasi *</label>
-                                <input type="file" id="input-foto-dokumen" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Bukti Speedtest *</label>
-                                <input type="file" id="input-foto-speed" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                            </div>
-                        </div>
-
-                        <button type="submit" id="btn-submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition flex items-center justify-center gap-2">
-                            <i data-lucide="cloud-upload" class="w-4 h-4"></i> Simpan Laporan Online
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- TAB 2: RIWAYAT MONITORING -->
-            <section id="tab-history" class="no-print space-y-3">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="history" class="w-4 h-4 text-emerald-600"></i>
-                        <span class="text-xs font-bold text-slate-800">Riwayat Laporan Realtime</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <select id="filter-unit-select" onchange="renderHistory()" class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium">
-                            <option value="ALL">Semua Unit</option>
-                            <option value="Cinta Wisata">Cinta Wisata</option>
-                            <option value="Cinta Niaga">Cinta Niaga</option>
-                            <option value="Cinta Teknika">Cinta Teknika</option>
-                            <option value="Poljan">Poljan</option>
-                        </select>
-                        <button onclick="fetchFromGoogleSheets()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Refresh Data">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="history-feed" class="space-y-3"></div>
-            </section>
-
-            <!-- TAB 3: CETAK LAPORAN & EXPORT -->
-            <section id="tab-report" class="space-y-4">
-                <div class="no-print bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <h3 class="text-xs font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="printer" class="w-4 h-4 text-emerald-600"></i> Cetak & Export Laporan
-                        </h3>
-                        <div class="flex items-center gap-2">
-                            <button onclick="exportExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Excel/CSV
-                            </button>
-                            <button onclick="window.print()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
-                                <i data-lucide="printer" class="w-4 h-4"></i> Cetak PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FORMAL PRINTABLE REPORT PAPER -->
-                <div class="bg-white rounded-2xl p-4 sm:p-10 border border-slate-300 shadow-lg text-slate-900 max-w-4xl mx-auto">
-                    <div class="text-center mb-6 border-b pb-4 border-slate-300">
-                        <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING UNIT</h2>
-                        <p class="text-xs font-bold text-slate-700 mt-1">YAYASAN INSAN CINTA BAKTI</p>
-                        <p id="report-period-text" class="text-[11px] text-slate-500 mt-0.5">Dicetak Secara Otomatis Melalui Sistem Portal Monitoring</p>
-                    </div>
-
-                    <div class="overflow-x-auto mb-8 rounded-xl border border-slate-300">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[10px]">
-                                    <th class="border-b border-r border-slate-300 p-2.5 text-center w-8">No</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[120px]">Hari & Tanggal</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[100px]">Unit</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[180px]">Detail Kegiatan</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 text-center min-w-[70px]">Speed</th>
-                                    <th class="border-b border-slate-300 p-2.5 text-center min-w-[150px]">Foto Kegiatan & Speed</th>
-                                </tr>
-                            </thead>
-                            <tbody id="report-table-body"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 sm:gap-8 text-center text-xs pt-4 border-t border-slate-200">
-                        <div>
-                            <p class="text-slate-500 mb-1 border-b pb-1 inline-block">Petugas Sarana Prasarana</p>
-                            <div class="h-16"></div>
-                            <p class="font-bold underline text-slate-800">( .................................... )</p>
-                            <p class="text-[10px] text-slate-500">NIP / ID: SARANA-YICB</p>
-                        </div>
-                        <div>
-                            <p class="text-slate-500 mb-1 border-b pb-1 inline-block">Mengetahui, Ketua Yayasan</p>
-                            <div class="h-16"></div>
-                            <p class="font-bold underline text-slate-800">( .................................... )</p>
-                            <p class="text-[10px] text-slate-500">Yayasan Insan Cinta Bakti</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
-    </main>
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR -->
-    <nav id="bottom-nav" class="no-print hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 text-slate-400 z-40">
-        <div class="max-w-md mx-auto grid grid-cols-3 py-1">
-            <button id="nav-btn-form" onclick="switchTab('form')" class="flex flex-col items-center py-2 text-emerald-400">
-                <i data-lucide="plus-square" class="w-5 h-5"></i>
-                <span class="text-[10px] font-bold mt-1">Form Input</span>
-            </button>
-            <button id="nav-btn-history" onclick="switchTab('history')" class="flex flex-col items-center py-2">
-                <i data-lucide="list-checks" class="w-5 h-5"></i>
-                <span class="text-[10px] font-bold mt-1">Riwayat</span>
-            </button>
-            <button id="nav-btn-report" onclick="switchTab('report')" class="flex flex-col items-center py-2">
-                <i data-lucide="printer" class="w-5 h-5"></i>
-                <span class="text-[10px] font-bold mt-1">Cetak Laporan</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- MODAL POPUPS -->
-    <div id="modal-profile" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="key" class="w-4 h-4 text-emerald-600"></i> Pengaturan Password
-                </h3>
-                <button onclick="closeModal('modal-profile')" class="text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                <p class="text-xs font-bold text-slate-800" id="profile-user-text">User: Admin</p>
-                <p class="text-[10px] text-slate-500">Anda dapat mengubah password akun aktif melalui PIN keamanan.</p>
-            </div>
-
-            <div id="pin-step-1" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Masukkan PIN Security</label>
-                    <input type="password" id="input-security-pin" placeholder="••••••" maxlength="6"
-                        class="w-full text-center tracking-widest text-base font-extrabold px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <!-- DASHBOARD -->
+        <div id="dashboard-page" class="hidden flex-1 flex flex-col">
+            <header class="bg-white border-b sticky top-0 z-50 no-print">
+                <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-amber-400 overflow-hidden">
+                            <img src="https://lh3.googleusercontent.com/d/1w9R82j8zW7yK5mX4l2v3b1n9c8x7z6q5=s400" class="w-full h-full object-contain">
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-900">CHSE Wisata</h2>
+                            <p class="text-[11px] text-slate-500">SMK ICB Cinta Wisata</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div id="admin-top-menu" class="hidden flex gap-2">
+                            <button onclick="openModal('add-account-modal')" class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-user-plus"></i> Tambah Akun</button>
+                        </div>
+                        <button onclick="downloadPDF()" class="bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                        <button onclick="window.print()" class="bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-print"></i> Cetak</button>
+                        <span id="user-badge" class="px-2.5 py-1 bg-blue-100 text-blue-800 text-[11px] font-bold rounded-lg uppercase"></span>
+                        <button onclick="logout()" class="text-slate-500 hover:text-red-600 px-2 py-1"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
                 </div>
-                <button onclick="verifyPinSecurity()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition">
-                    Verifikasi PIN
-                </button>
-            </div>
+            </header>
 
-            <div id="pin-step-2" class="hidden space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Password Baru</label>
-                    <input type="password" id="input-new-password" placeholder="Masukkan password baru"
-                        class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- FORM LAPORAN -->
+                <div class="lg:col-span-1 space-y-6 no-print">
+                    <div class="bg-white rounded-2xl shadow-sm border p-5 sticky top-20">
+                        <h3 class="font-bold text-slate-900 mb-4 flex items-center"><i class="fa-solid fa-file-pen text-blue-600 mr-2"></i> Buat Laporan Baru</h3>
+                        <form id="report-form" onsubmit="submitReport(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Area :</label>
+                                <input type="text" id="report-area" required class="w-full px-3.5 py-2.5 border rounded-xl text-sm bg-slate-50" placeholder="Cth: Toilet Lantai 2">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Keterangan :</label>
+                                <textarea id="report-desc" rows="3" required class="w-full px-3.5 py-2.5 border rounded-xl text-sm bg-slate-50" placeholder="Jelaskan temuan..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Upload Foto :</label>
+                                <input type="file" id="report-photo" accept="image/*" class="w-full text-xs text-slate-500 border rounded-xl p-1 bg-slate-50">
+                            </div>
+                            <button type="submit" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm shadow">Kirim Laporan</button>
+                        </form>
+                    </div>
                 </div>
-                <button onclick="saveNewPassword()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition">
-                    Simpan Password Baru
-                </button>
-            </div>
 
-            <div class="pt-2 border-t">
-                <button onclick="handleLogout()" class="w-full py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold border border-rose-200 transition flex items-center justify-center gap-2">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout / Keluar
-                </button>
-            </div>
+                <!-- DAFTAR LAPORAN -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div id="printable-area" class="bg-white rounded-2xl shadow-sm border p-5">
+                        <div class="flex justify-between items-center mb-6 border-b pb-4">
+                            <div>
+                                <h3 class="font-black text-slate-900 text-base"><i class="fa-solid fa-clipboard-list text-blue-600 mr-2"></i> Daftar Laporan Area CHSE</h3>
+                                <p class="text-xs text-slate-500">SMK ICB Cinta Wisata</p>
+                            </div>
+                            <span id="total-reports" class="bg-blue-50 text-blue-700 text-xs px-3 py-1.5 rounded-full font-bold">0 Laporan</span>
+                        </div>
+                        <div id="reports-container" class="space-y-4"></div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- MODAL LIGHTBOX PREVIEW -->
-    <div id="modal-lightbox" class="no-print fixed inset-0 bg-slate-950/90 z-50 hidden flex items-center justify-center p-4" onclick="closeModal('modal-lightbox')">
-        <div class="relative max-w-lg w-full">
-            <img id="lightbox-img" src="" class="w-full h-auto max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-slate-800">
-            <button class="absolute -top-10 right-0 text-white text-xs bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-                Tutup [X]
-            </button>
+    <!-- MODAL FOTO -->
+    <div id="photo-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 relative">
+            <button onclick="closeModal('photo-modal')" class="absolute top-3 right-3 text-slate-400 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <img id="modal-img-element" src="" class="w-full h-auto rounded-xl object-contain max-h-[70vh]">
         </div>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <!-- MODAL TAMBAH AKUN -->
+    <div id="add-account-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 relative">
+            <button onclick="closeModal('add-account-modal')" class="absolute top-3 right-3 text-slate-400 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold mb-4">Tambah Akun User</h3>
+            <form onsubmit="addUserAccount(event)" class="space-y-3">
+                <input type="text" id="new-username" required placeholder="Username" class="w-full px-3 py-2 border rounded-xl text-sm">
+                <input type="password" id="new-password" required placeholder="Password" class="w-full px-3 py-2 border rounded-xl text-sm">
+                <select id="new-role" class="w-full px-3 py-2 border rounded-xl text-sm"><option value="user">User</option><option value="admin">Admin</option></select>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-sm">Simpan</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB4hCEgw3bzi15eDc4VTIpOflfVu3nAnrBKNffNCQJeDKqJ3K5fa9K3p8P_WsN7RtxwQ/exec";
-        const IMGBB_API_KEY = "ff6b62f8524e82b7815501fb43d05353";
-        const SECURITY_PIN = "070707";
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxmkNWzqbLUdqDciaFp3Jb8wpWr903r3-GGTr_nAJuPVGFR1hvSZQE_t7_VJ6d2jhTWoQ/exec';
+        const IMGBB_API_KEY = 'MASUKKAN_API_KEY_IMGBB_DISINI'; // Ganti dengan API Key ImgBB Anda
 
-        let users = JSON.parse(localStorage.getItem('YICB_USERS')) || {
-            'admin': { pass: 'admin', role: 'ADMIN', name: 'Petugas Admin (Sarana)' },
-            'sarana': { pass: '1234', role: 'READER', name: 'Sarana Prasarana (Pembaca)' }
-        };
+        let users = [];
+        let reports = [];
+        let currentUser = JSON.parse(localStorage.getItem('chse_current_user')) || null;
 
-        let monitoringLogs = JSON.parse(localStorage.getItem('YICB_LOGS')) || [];
-        let currentUser = null;
-        let activeTab = 'form';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            saveUsersToStorage();
-            if (GOOGLE_SCRIPT_URL) {
-                fetchFromGoogleSheets();
-            } else {
-                updateDashboardCounts();
-                renderHistory();
-                renderReportTable();
-            }
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchDataFromServer().then(() => {
+                if (currentUser) showDashboard();
+            });
         });
 
-        async function fetchFromGoogleSheets() {
+        async function fetchDataFromServer() {
             try {
-                document.getElementById('cloud-status-text').textContent = "Syncing Sheets...";
-                const res = await fetch(GOOGLE_SCRIPT_URL);
+                const res = await fetch(`${API_URL}?action=getData`);
                 const data = await res.json();
-
-                if (Array.isArray(data) && data.length > 0) {
-                    const parsedData = data.map(item => {
-                        let formattedDate = item.tanggal;
-                        if (typeof formattedDate === 'string' && formattedDate.includes('T')) {
-                            formattedDate = formattedDate.split('T')[0];
-                        }
-                        return {
-                            id: String(item.id || 'LOG_' + Math.random().toString(36).substr(2, 9)),
-                            tanggal: formattedDate || new Date().toISOString().split('T')[0],
-                            unit: item.unit || '-',
-                            kegiatan: item.kegiatan || '-',
-                            speed: item.speed || '0',
-                            fotoDokumen: item.fotoDokumen || item.foto_dokumen || '',
-                            fotoSpeed: item.fotoSpeed || item.foto_speed || '',
-                            created_by: item.created_by || 'admin',
-                            timestamp: item.timestamp || new Date(item.tanggal).getTime() || Date.now()
-                        };
-                    });
-
-                    monitoringLogs = parsedData.sort((a, b) => b.timestamp - a.timestamp);
-                    localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
-                    document.getElementById('cloud-status-text').textContent = "Google Sheets Active";
-                }
+                users = data.users || [];
+                reports = data.reports || [];
+                document.getElementById('loading-sync').classList.add('hidden');
             } catch (err) {
-                console.warn("Gagal sync Google Sheets:", err);
-                document.getElementById('cloud-status-text').textContent = "Offline Mode (Local)";
-            } finally {
-                updateDashboardCounts();
-                renderHistory();
-                renderReportTable();
+                alert('Gagal menyinkronkan data dengan server.');
+                document.getElementById('loading-sync').classList.add('hidden');
             }
         }
 
-        function saveUsersToStorage() {
-            localStorage.setItem('YICB_USERS', JSON.stringify(users));
+        async function uploadToImgBB(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) return data.data.url;
+            throw new Error('Gagal mengunggah gambar ke ImgBB');
         }
 
         function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('login-username').value.trim();
-            const p = document.getElementById('login-password').value.trim();
-
-            if (users[u] && users[u].pass === p) {
-                currentUser = { username: u, ...users[u] };
-                document.getElementById('view-login').classList.add('hidden');
-                document.getElementById('view-dashboard').classList.remove('hidden');
-                document.getElementById('bottom-nav').classList.remove('hidden');
-                document.getElementById('user-badge').classList.remove('hidden');
-
-                document.getElementById('user-display-name').textContent = currentUser.name;
-                document.getElementById('user-role-badge').textContent = currentUser.role === 'ADMIN' ? 'Penginput Data' : 'Pembaca Laporan';
-
-                if (currentUser.role === 'READER') {
-                    document.getElementById('role-notice-banner').classList.remove('hidden');
-                    document.getElementById('nav-btn-form').classList.add('hidden');
-                    switchTab('history');
-                } else {
-                    document.getElementById('role-notice-banner').classList.add('hidden');
-                    document.getElementById('nav-btn-form').classList.remove('hidden');
-                    switchTab('form');
-                }
-
-                updateDashboardCounts();
-                renderHistory();
-                renderReportTable();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
+            
+            if (found) {
+                currentUser = { username: found.username, role: found.role };
+                localStorage.setItem('chse_current_user', JSON.stringify(currentUser));
+                showDashboard();
             } else {
                 alert('Username atau Password salah!');
             }
         }
 
-        function handleLogout() {
+        function logout() {
             currentUser = null;
-            closeModal('modal-profile');
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('bottom-nav').classList.add('hidden');
-            document.getElementById('user-badge').classList.add('hidden');
-            document.getElementById('view-login').classList.remove('hidden');
-            document.getElementById('form-login').reset();
+            localStorage.removeItem('chse_current_user');
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('login-page').classList.remove('hidden');
         }
 
-        function switchTab(tab) {
-            activeTab = tab;
-            document.getElementById('tab-form').classList.add('hidden');
-            document.getElementById('tab-history').classList.add('hidden');
-            document.getElementById('tab-report').classList.add('hidden');
-
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-
-            ['form', 'history', 'report'].forEach(t => {
-                const btn = document.getElementById(`nav-btn-${t}`);
-                if (btn) {
-                    if (t === tab) {
-                        btn.classList.add('text-emerald-400');
-                        btn.classList.remove('text-slate-400');
-                    } else {
-                        btn.classList.remove('text-emerald-400');
-                        btn.classList.add('text-slate-400');
-                    }
-                }
-            });
-
-            if (tab === 'history') renderHistory();
-            if (tab === 'report') renderReportTable();
-        }
-
-        function formatDateWithDay(dateString) {
-            if (!dateString) return '-';
-            let cleanStr = String(dateString);
-            if (cleanStr.includes('T')) cleanStr = cleanStr.split('T')[0];
-
-            const parts = cleanStr.split('-');
-            if (parts.length < 3) return cleanStr;
-
-            const date = new Date(parts[0], parts[1] - 1, parts[2]);
-            if (isNaN(date.getTime())) return cleanStr;
-
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-            const dayName = days[date.getDay()];
-            const dayNum = String(date.getDate()).padStart(2, '0');
-            const monthName = months[date.getMonth()];
-            const year = date.getFullYear();
-
-            return `${dayName}, ${dayNum} ${monthName} ${year}`;
-        }
-
-        // FUNGSI UPLOAD FOTO KE IMGBB
-        async function uploadImageToImgBB(file) {
-            const formData = new FormData();
-            formData.append("image", file);
-
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: "POST",
-                body: formData
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                return result.data.url;
-            } else {
-                throw new Error("Gagal upload foto ke ImgBB");
+        function showDashboard() {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('hidden');
+            document.getElementById('user-badge').innerText = `${currentUser.role}: ${currentUser.username}`;
+            if (currentUser.role === 'admin') {
+                document.getElementById('admin-top-menu').classList.remove('hidden');
             }
+            renderReports();
         }
 
-        // FUNGSI SIMPAN LAPORAN
-        async function handleSaveMonitoring(e) {
+        async function submitReport(e) {
             e.preventDefault();
-            if (currentUser.role !== 'ADMIN') return;
-
-            const btnSubmit = document.getElementById('btn-submit');
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading Foto ke ImgBB...`;
-            lucide.createIcons();
+            const btn = document.getElementById('btn-submit');
+            btn.innerText = "Mengunggah...";
+            btn.disabled = true;
 
             try {
-                const unit = document.getElementById('input-unit').value;
-                const tanggal = document.getElementById('input-tanggal').value;
-                const kegiatan = document.getElementById('input-kegiatan').value;
-                const speed = document.getElementById('input-speed').value;
+                const area = document.getElementById('report-area').value;
+                const keterangan = document.getElementById('report-desc').value;
+                const photoInput = document.getElementById('report-photo');
+                let photoUrl = "https://via.placeholder.com/400x300?text=Tidak+Ada+Foto";
 
-                const fileDok = document.getElementById('input-foto-dokumen').files[0];
-                const fileSpeed = document.getElementById('input-foto-speed').files[0];
+                if (photoInput.files && photoInput.files[0]) {
+                    photoUrl = await uploadToImgBB(photoInput.files[0]);
+                }
 
-                // 1. Upload foto ke ImgBB
-                const [urlDokumen, urlSpeed] = await Promise.all([
-                    uploadImageToImgBB(fileDok),
-                    uploadImageToImgBB(fileSpeed)
-                ]);
-
-                btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menyimpan ke Google Sheets...`;
-                lucide.createIcons();
-
-                const logId = 'LOG_' + Date.now();
-                const newLogData = {
-                    id: logId,
-                    tanggal: tanggal,
-                    unit: unit,
-                    kegiatan: kegiatan,
-                    speed: speed,
-                    fotoDokumen: urlDokumen,
-                    fotoSpeed: urlSpeed,
-                    created_by: currentUser.username,
-                    timestamp: Date.now()
+                const newReport = {
+                    id: Date.now(),
+                    area,
+                    keterangan,
+                    photo: photoUrl,
+                    pelapor: currentUser.username,
+                    tanggalLaporan: new Date().toLocaleDateString('id-ID'),
+                    tindakLanjut: "",
+                    tanggalTindakLanjut: "",
+                    dokumentasi: "",
+                    status: "Menunggu Tindak Lanjut"
                 };
 
-                // 2. Render lokal langsung
-                monitoringLogs.unshift(newLogData);
-                localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
-                updateDashboardCounts();
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'saveReport', report: newReport })
+                });
 
-                // 3. Kirim data ke Google Sheets menggunakan Form-UrlEncoded
-                const payload = new URLSearchParams();
-                payload.append("id", logId);
-                payload.append("tanggal", tanggal);
-                payload.append("unit", unit);
-                payload.append("kegiatan", kegiatan);
-                payload.append("speed", speed);
-                payload.append("fotoDokumen", urlDokumen);
-                payload.append("fotoSpeed", urlSpeed);
-                payload.append("created_by", currentUser.username);
-
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: payload.toString()
-                }).catch(err => console.warn("Background sheet sync warn:", err));
-
-                document.getElementById('form-monitoring').reset();
-                alert('Laporan Berhasil Disimpan!');
-                switchTab('history');
+                reports.unshift(newReport);
+                document.getElementById('report-form').reset();
+                renderReports();
+                alert('Laporan berhasil dikirim!');
             } catch (err) {
-                alert('Gagal menyimpan: ' + err.message);
+                alert(err.message);
             } finally {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i> Simpan Laporan Online`;
-                lucide.createIcons();
+                btn.innerText = "Kirim Laporan";
+                btn.disabled = false;
             }
         }
 
-        function renderHistory() {
-            const container = document.getElementById('history-feed');
-            const selectedFilter = document.getElementById('filter-unit-select').value;
-
-            const filteredLogs = selectedFilter === 'ALL'
-                ? monitoringLogs
-                : monitoringLogs.filter(l => l.unit === selectedFilter);
-
-            container.innerHTML = '';
-
-            if (filteredLogs.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white rounded-2xl p-8 text-center text-slate-400 border border-slate-200 shadow-xs">
-                        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
-                        <p class="text-xs font-semibold">Belum ada riwayat laporan monitoring</p>
-                    </div>
-                `;
-                lucide.createIcons();
+        function renderReports() {
+            const container = document.getElementById('reports-container');
+            document.getElementById('total-reports').innerText = `${reports.length} Laporan`;
+            
+            if (reports.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm">Belum ada laporan masuk.</div>`;
                 return;
             }
 
-            filteredLogs.forEach(log => {
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3";
-
-                const canDelete = currentUser && currentUser.role === 'ADMIN';
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between border-b pb-2.5">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${getUnitBadgeColor(log.unit)}">${log.unit}</span>
-                            <span class="text-xs font-bold text-slate-700">${formatDateWithDay(log.tanggal)}</span>
+            container.innerHTML = reports.map(r => `
+                <div class="border rounded-2xl p-4 bg-white space-y-3 shadow-xs">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-black text-blue-700 uppercase">Area : ${r.area}</span>
+                            <p class="text-[11px] text-slate-400">Pelapor: ${r.pelapor} • ${r.tanggalLaporan}</p>
                         </div>
-                        ${canDelete ? `
-                            <button type="button" onclick="deleteLog('${log.id}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1 text-[11px] font-bold">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
-                            </button>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.status}</span>
+                    </div>
+                    <div class="text-sm bg-slate-50 p-3 rounded-xl">${r.keterangan}</div>
+                    <div>
+                        <img src="${r.photo}" onclick="openPhotoModal('${r.photo}')" class="w-28 h-20 object-cover rounded-xl cursor-pointer border" crossorigin="anonymous">
+                    </div>
+                    <div class="border-t pt-3">
+                        <span class="text-xs font-bold text-indigo-700 uppercase">Tindak Lanjut :</span>
+                        ${r.tindakLanjut ? `<p class="text-sm bg-indigo-50 p-3 rounded-xl mt-1">${r.tindakLanjut}</p>` : `<p class="text-xs text-slate-400 italic mt-1">Belum ada tindak lanjut.</p>`}
+                        ${currentUser.role === 'admin' && !r.tindakLanjut ? `
+                            <form onsubmit="submitFollowUp(event, ${r.id})" class="no-print mt-2 space-y-2">
+                                <input type="text" id="tindak-${r.id}" placeholder="Tulis tindak lanjut..." required class="w-full px-3 py-1.5 border rounded-xl text-xs">
+                                <input type="file" id="dok-${r.id}" accept="image/*" class="w-full text-xs">
+                                <button type="submit" class="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl font-bold">Simpan</button>
+                            </form>
                         ` : ''}
                     </div>
+                </div>
+            `).join('');
+        }
 
-                    <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
+        async function submitFollowUp(e, id) {
+            e.preventDefault();
+            const tindakLanjutText = document.getElementById(`tindak-${id}`).value;
+            const dokInput = document.getElementById(`dok-${id}`);
+            let dokUrl = "";
 
-                    <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl text-xs font-bold w-fit">
-                        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
-                        <span>Kecepatan: ${log.speed} Mbps</span>
-                    </div>
+            if (dokInput.files && dokInput.files[0]) {
+                dokUrl = await uploadToImgBB(dokInput.files[0]);
+            }
 
-                    <div class="grid grid-cols-2 gap-2.5 pt-1">
-                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-50" onclick="openLightbox('${log.fotoDokumen}')">
-                            <img src="${log.fotoDokumen}" class="w-full aspect-square sm:h-32 object-cover transition transform group-hover:scale-105" onerror="this.src='https://via.placeholder.com/300?text=Gambar+Tidak+Tersedia'">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2">
-                                <span class="text-white text-[9px] font-bold">Dokumentasi</span>
-                                <i data-lucide="maximize-2" class="w-3 h-3 text-white"></i>
-                            </div>
-                        </div>
-                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-50" onclick="openLightbox('${log.fotoSpeed}')">
-                            <img src="${log.fotoSpeed}" class="w-full aspect-square sm:h-32 object-cover transition transform group-hover:scale-105" onerror="this.src='https://via.placeholder.com/300?text=Gambar+Tidak+Tersedia'">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2">
-                                <span class="text-white text-[9px] font-bold">Bukti Speedtest</span>
-                                <i data-lucide="maximize-2" class="w-3 h-3 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'updateFollowUp',
+                    id: id,
+                    tindakLanjut: tindakLanjutText,
+                    tanggalTindakLanjut: new Date().toLocaleDateString('id-ID'),
+                    dokumentasi: dokUrl
+                })
             });
 
-            lucide.createIcons();
+            await fetchDataFromServer();
+            renderReports();
+            alert('Tindak lanjut diperbarui!');
         }
 
-        async function deleteLog(idStr) {
-            if (!currentUser || currentUser.role !== 'ADMIN') return;
-
-            if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
-                monitoringLogs = monitoringLogs.filter(l => String(l.id) !== String(idStr));
-                localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
-                updateDashboardCounts();
-                renderHistory();
-                renderReportTable();
-
-                const payload = new URLSearchParams();
-                payload.append("action", "DELETE");
-                payload.append("id", idStr);
-
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: payload.toString()
-                }).catch(err => console.warn("Delete bg err:", err));
-            }
+        function downloadPDF() {
+            html2pdf().from(document.getElementById('printable-area')).save(`laporan_chse_${Date.now()}.pdf`);
         }
 
-        function renderReportTable() {
-            const tbody = document.getElementById('report-table-body');
-            tbody.innerHTML = '';
-
-            if (monitoringLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">Tidak ada data untuk dicetak</td></tr>`;
-                return;
-            }
-
-            monitoringLogs.forEach((log, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-200 hover:bg-slate-50 transition";
-                tr.innerHTML = `
-                    <td class="border-r border-slate-200 p-2 text-center font-bold text-slate-500">${idx + 1}</td>
-                    <td class="border-r border-slate-200 p-2 font-semibold text-slate-700">${formatDateWithDay(log.tanggal)}</td>
-                    <td class="border-r border-slate-200 p-2 font-bold text-slate-800">${log.unit}</td>
-                    <td class="border-r border-slate-200 p-2 leading-relaxed text-slate-600">${log.kegiatan}</td>
-                    <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed} Mbps</td>
-                    <td class="p-1.5 text-center">
-                        <div class="flex items-center justify-center gap-1.5">
-                            <img src="${log.fotoDokumen}" onclick="openLightbox('${log.fotoDokumen}')" class="w-10 h-10 object-cover rounded-lg border border-slate-200 cursor-pointer" onerror="this.src='https://via.placeholder.com/100?text=Error'">
-                            <img src="${log.fotoSpeed}" onclick="openLightbox('${log.fotoSpeed}')" class="w-10 h-10 object-cover rounded-lg border border-slate-200 cursor-pointer" onerror="this.src='https://via.placeholder.com/100?text=Error'">
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function exportExcel() {
-            if (monitoringLogs.length === 0) return;
-            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Speed (Mbps)\n";
-            monitoringLogs.forEach((l, i) => {
-                const cleanKegiatan = `"${l.kegiatan.replace(/"/g, '""')}"`;
-                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},"${l.speed}"\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Monitoring_YICB_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function verifyPinSecurity() {
-            const inputPin = document.getElementById('input-security-pin').value.trim();
-            if (inputPin === SECURITY_PIN) {
-                document.getElementById('pin-step-1').classList.add('hidden');
-                document.getElementById('pin-step-2').classList.remove('hidden');
-            } else {
-                alert('PIN Keamanan Salah!');
-            }
-        }
-
-        function saveNewPassword() {
-            const newPass = document.getElementById('input-new-password').value.trim();
-            if (newPass.length < 3) return;
-
-            users[currentUser.username].pass = newPass;
-            currentUser.pass = newPass;
-            saveUsersToStorage();
-
-            alert('Password berhasil diubah!');
-            closeModal('modal-profile');
-            document.getElementById('pin-step-1').classList.remove('hidden');
-            document.getElementById('pin-step-2').classList.add('hidden');
-        }
-
-        function updateDashboardCounts() {
-            const counts = { 'Cinta Wisata': 0, 'Cinta Niaga': 0, 'Cinta Teknika': 0, 'Poljan': 0 };
-            monitoringLogs.forEach(l => { if (counts[l.unit] !== undefined) counts[l.unit]++; });
-
-            document.getElementById('count-wisata').textContent = `${counts['Cinta Wisata']} Log`;
-            document.getElementById('count-niaga').textContent = `${counts['Cinta Niaga']} Log`;
-            document.getElementById('count-teknika').textContent = `${counts['Cinta Teknika']} Log`;
-            document.getElementById('count-poljan').textContent = `${counts['Poljan']} Log`;
-        }
-
-        function filterUnit(unitName) {
-            document.getElementById('filter-unit-select').value = unitName;
-            switchTab('history');
-        }
-
-        function getUnitBadgeColor(unit) {
-            switch(unit) {
-                case 'Cinta Wisata': return 'bg-emerald-100 text-emerald-800';
-                case 'Cinta Niaga': return 'bg-blue-100 text-blue-800';
-                case 'Cinta Teknika': return 'bg-purple-100 text-purple-800';
-                case 'Poljan': return 'bg-orange-100 text-orange-800';
-                default: return 'bg-slate-100 text-slate-800';
-            }
-        }
-
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function openLightbox(src) {
-            document.getElementById('lightbox-img').src = src;
-            document.getElementById('modal-lightbox').classList.remove('hidden');
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openPhotoModal(url) {
+            document.getElementById('modal-img-element').src = url;
+            document.getElementById('photo-modal').classList.remove('hidden');
         }
     </script>
 </body>
