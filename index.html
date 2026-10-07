@@ -102,7 +102,7 @@
                 <header class="bg-blue-900 text-white px-4 py-3 pt-6 flex justify-between items-center shadow-md no-print">
                     <div>
                         <h2 class="font-bold text-sm" x-text="role === 'admin' ? 'Admin CHSE' : 'User CHSE'"></h2>
-                        <p class="text-[10px] text-indigo-200">SMK ICB Cinta Wisata</p>
+                        <p class="text-[10px] text-indigo-200">SMK ICB Cinta Wisata (<span class="font-semibold text-white" x-text="currentUser"></span>)</p>
                     </div>
                     <button @click="logout()" class="text-xs bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg font-medium transition">
                         Keluar
@@ -140,7 +140,9 @@
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <span class="text-[10px] font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full" x-text="item.area"></span>
-                                        <span class="text-[10px] text-slate-400 ml-1" x-text="item.date"></span>
+                                        <div class="text-[10px] text-slate-400 mt-1">
+                                            Oleh: <span class="font-bold text-slate-600" x-text="item.username || 'CHSE'"></span> | <span x-text="item.date"></span>
+                                        </div>
                                     </div>
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded" :class="item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" x-text="item.status"></span>
                                 </div>
@@ -376,6 +378,7 @@
             return {
                 page: 'login',
                 role: '',
+                currentUser: '',
                 activeTab: 'list',
                 settingsView: '',
                 loginError: '',
@@ -417,7 +420,13 @@
 
                     fetch(SCRIPT_URL + '?action=getReports')
                         .then(res => res.json())
-                        .then(data => { this.reports = data.reverse(); })
+                        .then(data => { 
+                            // Mapping data agar properti username terbaca dengan aman
+                            this.reports = data.map(r => ({
+                                ...r,
+                                username: r.username || 'CHSE'
+                            })).reverse(); 
+                        })
                         .catch(err => console.error('Gagal memuat laporan:', err));
                 },
 
@@ -426,6 +435,7 @@
                     let found = this.accounts.find(acc => acc.username === this.loginForm.username && acc.password === this.loginForm.password);
                     if (found) {
                         this.role = found.role;
+                        this.currentUser = found.username; // Menyimpan nama user yang aktif login
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -438,6 +448,7 @@
                 logout() {
                     this.page = 'login';
                     this.role = '';
+                    this.currentUser = '';
                     this.loginError = '';
                 },
 
@@ -484,6 +495,7 @@
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
+                        username: this.currentUser, // Mengirim nama user yang sedang login ke database
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
