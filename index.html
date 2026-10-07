@@ -334,13 +334,13 @@
 
     </div>
 
-    <!-- Script Kompresi & Koneksi Cepat -->
+    <!-- Script Kompresi Super Cepat & Ringan -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZY_54xQw40t00fIFNTOfEj0n6TStGT3z1rwy9Or0pxmBpewv6mcRsPkM6APKbveBb/exec';
         const IMGBB_API_KEY = 'ff6b62f8524e82b7815501fb43d05353';
 
-        // Fungsi Kompresi Gambar Otomatis (Membuat file jadi kecil & ringan tanpa pecah)
-        function compressImage(file, maxWidth = 900, quality = 0.7) {
+        // KOMPRESI TINGKAT LANJUT (MaxWidth 600px, Quality 0.6 agar ukuran file sangat kecil & upload kilat)
+        function compressImage(file, maxWidth = 600, quality = 0.6) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -378,7 +378,7 @@
             return {
                 page: 'login',
                 role: '',
-                currentUser: '', // Variabel untuk menyimpan username yang aktif login
+                currentUser: '',
                 activeTab: 'list',
                 settingsView: '',
                 loginError: '',
@@ -388,7 +388,7 @@
                 activeImage: '',
                 accounts: [],
                 reports: [],
-                securityPin: '070707', // Tersembunyi total tanpa hint
+                securityPin: '070707',
                 enteredPin: '',
                 loginForm: { username: '', password: '' },
                 newReport: { area: '', keterangan: '', rawFile: null, preview: '' },
@@ -429,7 +429,7 @@
                     let found = this.accounts.find(acc => acc.username === this.loginForm.username && acc.password === this.loginForm.password);
                     if (found) {
                         this.role = found.role;
-                        this.currentUser = found.username; // Menyimpan nama akun yang sedang masuk
+                        this.currentUser = found.username;
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -442,7 +442,7 @@
                 logout() {
                     this.page = 'login';
                     this.role = '';
-                    this.currentUser = ''; // Reset nama user saat logout
+                    this.currentUser = '';
                     this.loginError = '';
                 },
 
@@ -478,7 +478,7 @@
                 async submitReport() {
                     if(!this.newReport.area || !this.newReport.keterangan) return;
                     this.loading = true;
-                    this.loadingText = 'Mengompres & Mengunggah foto...';
+                    this.loadingText = 'Mengoptimalkan & Mengunggah foto...';
 
                     let photoUrl = 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=500&q=80';
                     if (this.newReport.rawFile) {
@@ -489,7 +489,7 @@
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
-                        username: this.currentUser, // Mengirim nama user yang sedang login ke Spreadsheet
+                        username: this.currentUser,
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
@@ -514,7 +514,7 @@
                 async submitTindakLanjutWithImage(item, text, rawFile) {
                     if(!text) return;
                     this.loading = true;
-                    this.loadingText = 'Mengompres & Mengunggah dokumentasi...';
+                    this.loadingText = 'Mengoptimalkan & Mengunggah dokumentasi...';
 
                     let dokUrl = '';
                     if (rawFile) {
