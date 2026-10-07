@@ -141,7 +141,7 @@
                                     <div>
                                         <span class="text-[10px] font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full" x-text="item.area"></span>
                                         <div class="text-[10px] text-slate-400 mt-1">
-                                            Oleh: <span class="font-bold text-slate-600" x-text="item.username || 'CHSE'"></span> | <span x-text="item.date"></span>
+                                            Oleh: <span class="font-bold text-slate-700" x-text="item.username || 'Sistem'"></span> | <span x-text="item.date"></span>
                                         </div>
                                     </div>
                                     <span class="text-[10px] font-bold px-2 py-0.5 rounded" :class="item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" x-text="item.status"></span>
@@ -378,7 +378,7 @@
             return {
                 page: 'login',
                 role: '',
-                currentUser: '',
+                currentUser: '', // Variabel untuk menyimpan username yang aktif login
                 activeTab: 'list',
                 settingsView: '',
                 loginError: '',
@@ -420,13 +420,7 @@
 
                     fetch(SCRIPT_URL + '?action=getReports')
                         .then(res => res.json())
-                        .then(data => { 
-                            // Mapping data agar properti username terbaca dengan aman
-                            this.reports = data.map(r => ({
-                                ...r,
-                                username: r.username || 'CHSE'
-                            })).reverse(); 
-                        })
+                        .then(data => { this.reports = data.reverse(); })
                         .catch(err => console.error('Gagal memuat laporan:', err));
                 },
 
@@ -435,7 +429,7 @@
                     let found = this.accounts.find(acc => acc.username === this.loginForm.username && acc.password === this.loginForm.password);
                     if (found) {
                         this.role = found.role;
-                        this.currentUser = found.username; // Menyimpan nama user yang aktif login
+                        this.currentUser = found.username; // Menyimpan nama akun yang sedang masuk
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -448,7 +442,7 @@
                 logout() {
                     this.page = 'login';
                     this.role = '';
-                    this.currentUser = '';
+                    this.currentUser = ''; // Reset nama user saat logout
                     this.loginError = '';
                 },
 
@@ -495,7 +489,7 @@
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
-                        username: this.currentUser, // Mengirim nama user yang sedang login ke database
+                        username: this.currentUser, // Mengirim nama user yang sedang login ke Spreadsheet
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
