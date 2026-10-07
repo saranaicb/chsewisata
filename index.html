@@ -139,7 +139,6 @@
                 if (currentUser) showDashboard();
             });
 
-            // Sinkronisasi otomatis secara real-time setiap 15 detik
             setInterval(async () => {
                 if (currentUser) {
                     await fetchDataFromServer(false);
@@ -171,7 +170,6 @@
             alert('Data berhasil disinkronkan dari server!');
         }
 
-        // Fungsi Save / Backup Data ke format JSON lokal
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reports, null, 2));
             const downloadAnchor = document.createElement('a');
@@ -239,25 +237,18 @@
                     photoUrl = await uploadToImgBB(photoInput.files[0]);
                 }
 
-                const newReport = {
+                const reportData = {
+                    action: 'saveReport',
                     id: Date.now(),
-                    area,
-                    keterangan,
+                    area: area,
+                    keterangan: keterangan,
                     photo: photoUrl,
                     pelapor: currentUser.username,
-                    tanggalLaporan: new Date().toLocaleDateString('id-ID'),
-                    tindakLanjut: "",
-                    tanggalTindakLanjut: "",
-                    dokumentasi: "",
-                    status: "Menunggu Tindak Lanjut"
+                    tanggalLaporan: new Date().toLocaleDateString('id-ID')
                 };
 
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'saveReport', report: newReport })
-                });
+                const queryString = new URLSearchParams(reportData).toString();
+                await fetch(`${API_URL}?${queryString}`, { method: 'GET', mode: 'no-cors' });
 
                 document.getElementById('report-form').reset();
                 alert('Laporan berhasil dikirim dan disinkronkan ke server!');
@@ -286,7 +277,7 @@
                             <span class="text-xs font-black text-blue-700 uppercase">Area : ${r.area}</span>
                             <p class="text-[11px] text-slate-400">Pelapor: ${r.pelapor} • ${r.tanggalLaporan}</p>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.status}</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.status || 'Menunggu Tindak Lanjut'}</span>
                     </div>
                     <div class="text-sm bg-slate-50 p-3 rounded-xl">${r.keterangan}</div>
                     <div>
@@ -296,7 +287,7 @@
                         <span class="text-xs font-bold text-indigo-700 uppercase">Tindak Lanjut :</span>
                         ${r.tindakLanjut ? `<p class="text-sm bg-indigo-50 p-3 rounded-xl mt-1">${r.tindakLanjut}</p>` : `<p class="text-xs text-slate-400 italic mt-1">Belum ada tindak lanjut.</p>`}
                         ${currentUser.role === 'admin' && !r.tindakLanjut ? `
-                            <form onsubmit="submitFollowUp(event, ${r.id})" class="no-print mt-2 space-y-2">
+                            <form onsubmit="submitFollowUp(event, '${r.id}')" class="no-print mt-2 space-y-2">
                                 <input type="text" id="tindak-${r.id}" placeholder="Tulis tindak lanjut..." required class="w-full px-3 py-1.5 border rounded-xl text-xs">
                                 <input type="file" id="dok-${r.id}" accept="image/*" class="w-full text-xs">
                                 <button type="submit" class="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl font-bold">Simpan</button>
@@ -317,18 +308,16 @@
                 dokUrl = await uploadToImgBB(dokInput.files[0]);
             }
 
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'updateFollowUp',
-                    id: id,
-                    tindakLanjut: tindakLanjutText,
-                    tanggalTindakLanjut: new Date().toLocaleDateString('id-ID'),
-                    dokumentasi: dokUrl
-                })
-            });
+            const followUpData = {
+                action: 'updateFollowUp',
+                id: id,
+                tindakLanjut: tindakLanjutText,
+                tanggalTindakLanjut: new Date().toLocaleDateString('id-ID'),
+                dokumentasi: dokUrl
+            };
+
+            const queryString = new URLSearchParams(followUpData).toString();
+            await fetch(`${API_URL}?${queryString}`, { method: 'GET', mode: 'no-cors' });
 
             alert('Tindak lanjut berhasil diperbarui dan disinkronkan!');
             await fetchDataFromServer(false);
