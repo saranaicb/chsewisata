@@ -127,7 +127,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwCDrFaMkAxt9ZR5maXBNl7-aZvFsvuD018BmRD8V4MXesk0pQ1jKbAaB1vSSI-gKbcPw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw7KCd5_FSss2aN-0Ml6bt9Q8S0s-jkYa7Rmkzd22lIXVGciFjbVXn6VxwblK1swnXNMg/exec';
         const IMGBB_API_KEY = 'ff6b62f8524e82b7815501fb43d05353';
 
         let users = [];
@@ -139,6 +139,7 @@
                 if (currentUser) showDashboard();
             });
 
+            // Sinkronisasi otomatis setiap 15 detik secara real-time
             setInterval(async () => {
                 if (currentUser) {
                     await fetchDataFromServer(false);
@@ -248,7 +249,7 @@
                 };
 
                 const queryString = new URLSearchParams(reportData).toString();
-                await fetch(`${API_URL}?${queryString}`, { method: 'GET', mode: 'no-cors' });
+                await fetch(`${API_URL}?${queryString}`, { method: 'GET' });
 
                 document.getElementById('report-form').reset();
                 alert('Laporan berhasil dikirim dan disinkronkan ke server!');
@@ -317,7 +318,7 @@
             };
 
             const queryString = new URLSearchParams(followUpData).toString();
-            await fetch(`${API_URL}?${queryString}`, { method: 'GET', mode: 'no-cors' });
+            await fetch(`${API_URL}?${queryString}`, { method: 'GET' });
 
             alert('Tindak lanjut berhasil diperbarui dan disinkronkan!');
             await fetchDataFromServer(false);
