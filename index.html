@@ -149,11 +149,11 @@
                                     <p class="text-xs text-slate-700 mt-0.5" x-text="item.keterangan"></p>
                                 </div>
 
-                                <!-- Foto Laporan Langsung Tampil -->
+                                <!-- Foto Laporan Ukuran Normal -->
                                 <template x-if="item.foto">
                                     <div>
                                         <p class="text-[9px] font-medium text-slate-400 mb-1">Foto Laporan (ketuk untuk memperbesar):</p>
-                                        <img :src="item.foto" @click="openFullImage(item.foto)" class="w-full h-24 object-cover rounded-lg border border-slate-100 cursor-pointer hover:opacity-90 transition">
+                                        <img :src="item.foto" @click="openFullImage(item.foto)" class="w-full h-28 object-cover rounded-lg border border-slate-100 cursor-pointer hover:opacity-90 transition">
                                     </div>
                                 </template>
 
@@ -166,7 +166,7 @@
                                             <template x-if="item.dokTindakLanjut">
                                                 <div>
                                                     <p class="text-[9px] font-medium text-slate-400 mt-1">Dokumentasi Tindak Lanjut (ketuk untuk memperbesar):</p>
-                                                    <img :src="item.dokTindakLanjut" @click="openFullImage(item.dokTindakLanjut)" class="w-full h-20 object-cover rounded mt-1 cursor-pointer hover:opacity-90 transition">
+                                                    <img :src="item.dokTindakLanjut" @click="openFullImage(item.dokTindakLanjut)" class="w-full h-24 object-cover rounded mt-1 cursor-pointer hover:opacity-90 transition">
                                                 </div>
                                             </template>
                                         </div>
@@ -183,14 +183,14 @@
                                                 <input type="file" @change="(e) => {
                                                     const f = e.target.files[0];
                                                     if(f) {
-                                                        processImageToBase64(f, (base64) => {
+                                                        processImageNormal(f, (base64) => {
                                                             imageBase64 = base64;
                                                             tempPreview = base64;
                                                         });
                                                     }
                                                 }" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-1 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-100 file:text-blue-700">
                                                 <template x-if="tempPreview">
-                                                    <img :src="tempPreview" class="mt-1 w-full h-20 object-cover rounded border">
+                                                    <img :src="tempPreview" class="mt-1 w-full h-24 object-cover rounded border">
                                                 </template>
                                             </div>
 
@@ -237,14 +237,14 @@
                                 <input type="file" @change="(e) => { 
                                     const f = e.target.files[0];
                                     if(f) {
-                                        processImageToBase64(f, (base64) => {
+                                        processImageNormal(f, (base64) => {
                                             newReport.imageBase64 = base64;
                                             newReport.preview = base64;
                                         });
                                     }
                                 }" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 border border-slate-200 rounded-lg p-1 bg-slate-50">
                                 <template x-if="newReport.preview">
-                                    <img :src="newReport.preview" @click="openFullImage(newReport.preview)" class="mt-2 w-full h-24 object-cover rounded-lg border cursor-pointer">
+                                    <img :src="newReport.preview" @click="openFullImage(newReport.preview)" class="mt-2 w-full h-28 object-cover rounded-lg border cursor-pointer">
                                 </template>
                             </div>
                             <button type="submit" class="w-full py-2.5 bg-blue-900 text-white rounded-lg font-bold shadow hover:bg-blue-800 transition">
@@ -335,12 +335,12 @@
 
     </div>
 
-    <!-- Script Utama (Base64 Direct Storage) -->
+    <!-- Script Utama (Ukuran Normal Jernih & Support Smartphone) -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZY_54xQw40t00fIFNTOfEj0n6TStGT3z1rwy9Or0pxmBpewv6mcRsPkM6APKbveBb/exec';
 
-        // Fungsi Pemrosesan Gambar Langsung ke Base64 (Aman, Ringan, 100% Support Smartphone)
-        function processImageToBase64(file, callback, maxWidth = 500, quality = 0.5) {
+        // Fungsi Pemrosesan Gambar Ukuran Normal (Kualitas Jernih / Standar Foto Asli)
+        function processImageNormal(file, callback, maxWidth = 1280, quality = 0.85) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -361,6 +361,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
+                    // Mengubah gambar menjadi format Base64 dengan kualitas normal jernih
                     const dataUrl = canvas.toDataURL('image/jpeg', quality);
                     callback(dataUrl);
                 };
