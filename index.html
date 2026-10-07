@@ -33,19 +33,16 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased flex justify-center items-center min-h-screen p-4" x-data="app()">
+<body class="bg-slate-100 text-slate-800 antialiased flex justify-center items-center min-h-screen p-0 sm:p-4" x-data="app()">
 
-    <!-- CONTAINER UTAMA (Smartphone Simulator Frame) -->
-    <div class="w-full max-w-sm h-[780px] bg-white shadow-2xl rounded-3xl flex flex-col relative overflow-hidden border-8 border-slate-800">
-
-        <!-- Notch / Speaker Smartphone Simulator -->
-        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-5 bg-slate-800 rounded-b-xl z-50 no-print"></div>
+    <!-- CONTAINER UTAMA (Full Screen / Tanpa Border HP) -->
+    <div class="w-full max-w-md h-screen sm:h-[820px] bg-white shadow-none sm:shadow-2xl rounded-none sm:rounded-3xl flex flex-col relative overflow-hidden">
 
         <!-- MODAL FULL VIEW GAMBAR -->
         <template x-if="showModalImage">
-            <div class="absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4" @click="showModalImage = false">
+            <div class="absolute inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-4" @click="showModalImage = false">
                 <div class="relative max-w-full max-h-full">
-                    <img :src="activeImage" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl">
+                    <img :src="activeImage" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
                     <p class="text-white text-xs text-center mt-4">Ketuk di mana saja untuk menutup</p>
                 </div>
             </div>
@@ -99,7 +96,7 @@
         <template x-if="page === 'dashboard'">
             <div class="flex-1 flex flex-col bg-slate-50 overflow-hidden">
                 <!-- Header App -->
-                <header class="bg-blue-900 text-white px-4 py-3 pt-6 flex justify-between items-center shadow-md no-print">
+                <header class="bg-blue-900 text-white px-4 py-3 pt-4 flex justify-between items-center shadow-md no-print">
                     <div>
                         <h2 class="font-bold text-sm" x-text="role === 'admin' ? 'Admin CHSE' : 'User CHSE'"></h2>
                         <p class="text-[10px] text-indigo-200">SMK ICB Cinta Wisata (<span class="font-semibold text-white" x-text="currentUser"></span>)</p>
@@ -364,7 +361,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Mengubah gambar menjadi string Base64 JPEG yang ringan
                     const dataUrl = canvas.toDataURL('image/jpeg', quality);
                     callback(dataUrl);
                 };
