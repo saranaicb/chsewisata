@@ -7,196 +7,298 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2pdf.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @media print {
-            body * { visibility: hidden !important; }
-            #printable-area, #printable-area * { visibility: visible !important; }
-            #printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; }
-            .no-print { display: none !important; }
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10px;
+                background: white !important;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased">
 
-    <!-- Loading Indicator Sinkronisasi -->
-    <div id="loading-sync" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center text-white font-bold text-sm gap-2">
-        <i class="fa-solid fa-spinner fa-spin text-xl"></i> Memuat data dari server...
-    </div>
-
+    <!-- CONTAINER UTAMA -->
     <div id="app" class="min-h-screen flex flex-col justify-between">
-        <!-- HALAMAN LOGIN -->
+
+        <!-- 1. HALAMAN LOGIN -->
         <div id="login-page" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900">
-            <div class="bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl p-6 sm:p-8">
+            <div class="bg-white w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 transform transition-all">
                 <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-28 h-28 bg-white rounded-full mb-3 shadow-md border-4 border-amber-400/80 p-1.5 overflow-hidden">
-                        <img src="https://i.ibb.co.com/DHmRPRpZ/logo.png" alt="Logo CHSE" class="w-full h-full object-contain rounded-full" onerror="this.src='https://via.placeholder.com/150?text=CHSE+WISATA';">
+                    <!-- Logo CHSE WISATA -->
+                    <div class="inline-flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32 bg-white rounded-full mb-3 shadow-md border-4 border-amber-400/80 p-1.5 overflow-hidden">
+                        <img src="https://lh3.googleusercontent.com/d/1w9R82j8zW7yK5mX4l2v3b1n9c8x7z6q5=s400" alt="Logo CHSE Wisata" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=CHSE+WISATA';">
                     </div>
-                    <h1 class="text-xl font-black text-slate-900">TIM CHSE</h1>
-                    <p class="text-xs text-slate-600">SMK ICB Cinta Wisata</p>
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">TIM CHSE</h1>
+                    <p class="text-xs sm:text-sm font-medium text-slate-600">SMK ICB Cinta Wisata</p>
                 </div>
+
                 <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Username</label>
-                        <input type="text" id="username" required class="w-full px-3.5 py-3 border rounded-xl text-sm bg-slate-50" placeholder="Username">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-user"></i></span>
+                            <input type="text" id="username" required class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm bg-slate-50" placeholder="Masukkan username">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
-                        <input type="password" id="password" required class="w-full px-3.5 py-3 border rounded-xl text-sm bg-slate-50" placeholder="Password">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" id="password" required class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm bg-slate-50" placeholder="Masukkan password">
+                        </div>
                     </div>
-                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Masuk Sistem</button>
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-xl transition duration-200 shadow-lg text-sm sm:text-base">
+                        Masuk Sistem
+                    </button>
                 </form>
             </div>
         </div>
 
-        <!-- DASHBOARD -->
+        <!-- 2. HALAMAN DASHBOARD / UTAMA -->
         <div id="dashboard-page" class="hidden flex-1 flex flex-col">
-            <header class="bg-white border-b sticky top-0 z-50 no-print">
-                <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-amber-400 overflow-hidden">
-                            <img src="https://i.ibb.co.com/DHmRPRpZ/logo.png" alt="Logo" class="w-full h-full object-contain">
+            
+            <!-- Navbar Responsif Atas -->
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
+                <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow overflow-hidden p-0.5 border border-amber-400">
+                                <img src="https://lh3.googleusercontent.com/d/1w9R82j8zW7yK5mX4l2v3b1n9c8x7z6q5=s400" alt="Logo" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/50'">
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-sm text-slate-900 leading-tight">CHSE Wisata</h2>
+                                <p class="text-[11px] text-slate-500">SMK ICB Cinta Wisata</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="font-bold text-sm text-slate-900">CHSE Wisata</h2>
-                            <p class="text-[11px] text-slate-500">SMK ICB Cinta Wisata</p>
-                        </div>
+                        <!-- Tombol Menu Mobile Toggle -->
+                        <button onclick="toggleMobileMenu()" class="sm:hidden text-slate-600 focus:outline-none p-2">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="exportData()" title="Simpan File Cadangan JSON" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1">
-                            <i class="fa-solid fa-download"></i> <span class="hidden md:inline">Save</span>
-                        </button>
-                        <button onclick="manualSync()" class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-emerald-100" title="Sinkronisasi Data">
-                            <i class="fa-solid fa-sync"></i> <span class="hidden md:inline">Refresh</span>
-                        </button>
-                        <button onclick="downloadPDF()" class="bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                        <button onclick="window.print()" class="bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg"><i class="fa-solid fa-print"></i> Cetak</button>
-                        <span id="user-badge" class="px-2.5 py-1 bg-blue-100 text-blue-800 text-[11px] font-bold rounded-lg uppercase"></span>
-                        <button onclick="logout()" class="text-slate-500 hover:text-red-600 px-2 py-1"><i class="fa-solid fa-right-from-bracket"></i></button>
+
+                    <!-- Menu Navigasi Kanan & Admin Menu di Atas -->
+                    <div id="nav-menu" class="hidden sm:flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+                        
+                        <!-- Menu Khusus Admin (Di Atas) -->
+                        <div id="admin-top-menu" class="hidden flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                            <button onclick="openModal('add-account-modal')" class="w-full sm:w-auto bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-plus"></i> Tambah Akun
+                            </button>
+                            <button onclick="openModal('change-pass-modal')" class="w-full sm:w-auto bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-key"></i> Ganti Password
+                            </button>
+                        </div>
+
+                        <!-- Tombol Umum Data & Print -->
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="exportData()" title="Simpan File Data" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-download"></i> <span class="hidden md:inline">Save</span>
+                            </button>
+                            <button onclick="window.print()" title="Cetak Laporan PDF" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-print"></i> <span class="hidden md:inline">Cetak / PDF</span>
+                            </button>
+                            <span id="user-badge" class="px-2.5 py-1 bg-blue-100 text-blue-800 text-[11px] font-bold rounded-lg uppercase">Role</span>
+                            <button onclick="logout()" class="text-slate-500 hover:text-red-600 text-xs font-bold px-2 py-1 rounded transition">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
 
+            <!-- Main Content Area -->
             <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- FORM LAPORAN -->
+                
+                <!-- Kolom Form Input Laporan (User & Admin) -->
                 <div class="lg:col-span-1 space-y-6 no-print">
-                    <div class="bg-white rounded-2xl shadow-sm border p-5 sticky top-20">
-                        <h3 class="font-bold text-slate-900 mb-4 flex items-center"><i class="fa-solid fa-file-pen text-blue-600 mr-2"></i> Buat Laporan Baru</h3>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 sticky top-20">
+                        <h3 class="font-bold text-slate-900 mb-4 flex items-center text-base">
+                            <i class="fa-solid fa-file-pen text-blue-600 mr-2.5 text-lg"></i> Buat Laporan Baru
+                        </h3>
                         <form id="report-form" onsubmit="submitReport(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Area :</label>
-                                <input type="text" id="report-area" required class="w-full px-3.5 py-2.5 border rounded-xl text-sm bg-slate-50" placeholder="Cth: Toilet Lantai 2">
+                                <input type="text" id="report-area" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" placeholder="Cth: Toilet Lantai 2 / Kantin">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Keterangan :</label>
-                                <textarea id="report-desc" rows="3" required class="w-full px-3.5 py-2.5 border rounded-xl text-sm bg-slate-50" placeholder="Jelaskan temuan..."></textarea>
+                                <textarea id="report-desc" rows="3" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50" placeholder="Jelaskan kondisi temuan..."></textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Upload Foto :</label>
-                                <input type="file" id="report-photo" accept="image/*" class="w-full text-xs text-slate-500 border rounded-xl p-1 bg-slate-50">
+                                <input type="file" id="report-photo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-slate-300 rounded-xl p-1 bg-slate-50">
                             </div>
-                            <button type="submit" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm shadow">Kirim Laporan</button>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
+                                Kirim Laporan
+                            </button>
                         </form>
                     </div>
                 </div>
 
-                <!-- DAFTAR LAPORAN -->
+                <!-- Kolom Daftar Laporan -->
                 <div class="lg:col-span-2 space-y-4">
-                    <div id="printable-area" class="bg-white rounded-2xl shadow-sm border p-5">
+                    <div id="printable-area" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
                         <div class="flex justify-between items-center mb-6 border-b pb-4">
                             <div>
-                                <h3 class="font-black text-slate-900 text-base"><i class="fa-solid fa-clipboard-list text-blue-600 mr-2"></i> Daftar Laporan Area CHSE</h3>
+                                <h3 class="font-black text-slate-900 text-base sm:text-lg flex items-center">
+                                    <i class="fa-solid fa-clipboard-list text-blue-600 mr-2.5"></i> Daftar Laporan Area CHSE Wisata
+                                </h3>
                                 <p class="text-xs text-slate-500">SMK ICB Cinta Wisata</p>
                             </div>
-                            <span id="total-reports" class="bg-blue-50 text-blue-700 text-xs px-3 py-1.5 rounded-full font-bold">0 Laporan</span>
+                            <span id="total-reports" class="bg-blue-50 text-blue-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-xs">0 Laporan</span>
                         </div>
-                        <div id="reports-container" class="space-y-4"></div>
+
+                        <!-- Daftar Kartu Laporan -->
+                        <div id="reports-container" class="space-y-4">
+                            <!-- Data Laporan Dirender via JavaScript -->
+                        </div>
                     </div>
                 </div>
+
             </main>
         </div>
+
     </div>
 
-    <!-- MODAL FOTO -->
-    <div id="photo-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-4 relative">
-            <button onclick="closeModal('photo-modal')" class="absolute top-3 right-3 text-slate-400 font-bold"><i class="fa-solid fa-xmark"></i></button>
-            <img id="modal-img-element" src="" class="w-full h-auto rounded-xl object-contain max-h-[70vh]">
+    <!-- MODAL POPUP LIHAT FOTO -->
+    <div id="photo-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 relative shadow-2xl">
+            <button onclick="closeModal('photo-modal')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full bg-slate-100"><i class="fa-solid fa-xmark"></i></button>
+            <h4 class="font-bold text-slate-800 mb-3 text-sm">Pratinjau Foto</h4>
+            <img id="modal-img-element" src="" alt="Bukti Foto" class="w-full h-auto rounded-xl object-contain max-h-[70vh]">
         </div>
     </div>
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxNHsctMRq7ofH3rb6GstKIWNihCIWPi07qY_X2hdfWfWHzqFXC0ry37IW4kKGR7oAU/exec';
-        const IMGBB_API_KEY = 'ff6b62f8524e82b7815501fb43d05353';
+    <!-- MODAL TAMBAH AKUN (ADMIN) -->
+    <div id="add-account-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 relative shadow-2xl">
+            <button onclick="closeModal('add-account-modal')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold text-slate-900 mb-4 flex items-center text-base">
+                <i class="fa-solid fa-user-plus text-indigo-600 mr-2"></i> Tambah Akun User
+            </h3>
+            <form onsubmit="addUserAccount(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Username Baru</label>
+                    <input type="text" id="new-username" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50" placeholder="Username">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Password Baru</label>
+                    <input type="password" id="new-password" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50" placeholder="Password">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Role</label>
+                    <select id="new-role" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow">
+                    Simpan Akun
+                </button>
+            </form>
+        </div>
+    </div>
 
-        let users = [];
-        let reports = [];
+    <!-- MODAL GANTI PASSWORD (ADMIN) -->
+    <div id="change-pass-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 relative shadow-2xl">
+            <button onclick="closeModal('change-pass-modal')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold text-slate-900 mb-4 flex items-center text-base">
+                <i class="fa-solid fa-key text-amber-600 mr-2"></i> Ganti Password Akun
+            </h3>
+            <form onsubmit="changePassword(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Target Username</label>
+                    <input type="text" id="target-username" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50" placeholder="Username target">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Password Baru</label>
+                    <input type="password" id="updated-password" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50" placeholder="Password baru">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">PIN Verifikasi</label>
+                    <input type="password" id="security-pin" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-slate-50" placeholder="Masukkan PIN verifikasi">
+                </div>
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow">
+                    Perbarui Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIKA APLIKASI -->
+    <script>
+        // Data Store (Local Storage)
+        let users = JSON.parse(localStorage.getItem('chse_users')) || [
+            { username: 'CHSE', password: 'wisata', role: 'user' },
+            { username: 'CHSE', password: 'admin', role: 'admin' }
+        ];
+
+        let reports = JSON.parse(localStorage.getItem('chse_reports')) || [
+            {
+                id: 1,
+                area: "Toilet Utama Lantai 1",
+                keterangan: "Lantai agak licin dan sabun cuci tangan habis.",
+                photo: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80",
+                pelapor: "Tim CHSE 1",
+                tanggalLaporan: "Rabu, 07/10/2026",
+                tindakLanjut: "Sudah dibersihkan oleh petugas kebersihan dan diisi ulang sabunnya.",
+                tanggalTindakLanjut: "Rabu, 07/10/2026",
+                dokumentasi: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=400&q=80",
+                status: "Selesai"
+            }
+        ];
+
         let currentUser = JSON.parse(localStorage.getItem('chse_current_user')) || null;
+        const CORRECT_PIN = "070707";
 
         window.addEventListener('DOMContentLoaded', () => {
-            fetchDataFromServer(true).then(() => {
-                if (currentUser) showDashboard();
-            });
-
-            // Sinkronisasi otomatis setiap 15 detik secara real-time
-            setInterval(async () => {
-                if (currentUser) {
-                    await fetchDataFromServer(false);
-                }
-            }, 15000);
+            if (currentUser) {
+                showDashboard();
+            }
         });
 
-        async function fetchDataFromServer(showLoader = false) {
-            try {
-                if (showLoader) document.getElementById('loading-sync').classList.remove('hidden');
-                
-                const res = await fetch(`${API_URL}?action=getData`);
-                const data = await res.json();
-                users = data.users || [];
-                reports = data.reports || [];
-                
-                if (currentUser) {
-                    renderReports();
-                }
-            } catch (err) {
-                console.error("Gagal sinkronisasi data:", err);
-            } finally {
-                if (showLoader) document.getElementById('loading-sync').classList.add('hidden');
-            }
+        function getFormattedDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+            return dateStr;
         }
 
-        async function manualSync() {
-            await fetchDataFromServer(true);
-            alert('Data berhasil disinkronkan dari server!');
+        function toggleMobileMenu() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('hidden');
         }
 
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reports, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `backup_data_chse_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById('nav-menu').classList.add('hidden');
         }
 
-        async function uploadToImgBB(file) {
-            const formData = new FormData();
-            formData.append('image', file);
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (data.success) return data.data.url;
-            throw new Error('Gagal mengunggah gambar ke ImgBB');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
         }
 
+        // Handler Login
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
+
             const found = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
             
             if (found) {
@@ -213,55 +315,65 @@
             localStorage.removeItem('chse_current_user');
             document.getElementById('dashboard-page').classList.add('hidden');
             document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('login-form').reset();
         }
 
         function showDashboard() {
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('dashboard-page').classList.remove('hidden');
             document.getElementById('user-badge').innerText = `${currentUser.role}: ${currentUser.username}`;
+
+            if (currentUser.role === 'admin') {
+                document.getElementById('admin-top-menu').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-top-menu').classList.add('hidden');
+            }
+
             renderReports();
         }
 
-        async function submitReport(e) {
+        // Submit Laporan
+        function submitReport(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-submit');
-            btn.innerText = "Mengunggah...";
-            btn.disabled = true;
+            const area = document.getElementById('report-area').value;
+            const keterangan = document.getElementById('report-desc').value;
+            const photoInput = document.getElementById('report-photo');
 
-            try {
-                const area = document.getElementById('report-area').value;
-                const keterangan = document.getElementById('report-desc').value;
-                const photoInput = document.getElementById('report-photo');
-                let photoUrl = "https://via.placeholder.com/400x300?text=Tidak+Ada+Foto";
+            let photoUrl = "https://via.placeholder.com/400x300?text=Tidak+Ada+Foto";
 
-                if (photoInput.files && photoInput.files[0]) {
-                    photoUrl = await uploadToImgBB(photoInput.files[0]);
+            if (photoInput.files && photoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveNewReport(area, keterangan, e.target.result);
                 }
-
-                const reportData = {
-                    action: 'saveReport',
-                    id: Date.now(),
-                    area: area,
-                    keterangan: keterangan,
-                    photo: photoUrl,
-                    pelapor: currentUser.username,
-                    tanggalLaporan: new Date().toLocaleDateString('id-ID')
-                };
-
-                const queryString = new URLSearchParams(reportData).toString();
-                await fetch(`${API_URL}?${queryString}`, { method: 'GET' });
-
-                document.getElementById('report-form').reset();
-                alert('Laporan berhasil dikirim dan disinkronkan ke server!');
-                await fetchDataFromServer(false);
-            } catch (err) {
-                alert('Gagal mengirim laporan: ' + err.message);
-            } finally {
-                btn.innerText = "Kirim Laporan";
-                btn.disabled = false;
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                saveNewReport(area, keterangan, photoUrl);
             }
         }
 
+        function saveNewReport(area, keterangan, photo) {
+            const newReport = {
+                id: Date.now(),
+                area,
+                keterangan,
+                photo,
+                pelapor: currentUser.username,
+                tanggalLaporan: getFormattedDateTime(),
+                tindakLanjut: "",
+                tanggalTindakLanjut: "",
+                dokumentasi: "",
+                status: "Menunggu Tindak Lanjut"
+            };
+
+            reports.unshift(newReport);
+            localStorage.setItem('chse_reports', JSON.stringify(reports));
+            document.getElementById('report-form').reset();
+            renderReports();
+            alert('Laporan berhasil dikirim!');
+        }
+
+        // Render Daftar Laporan
         function renderReports() {
             const container = document.getElementById('reports-container');
             document.getElementById('total-reports').innerText = `${reports.length} Laporan`;
@@ -272,26 +384,65 @@
             }
 
             container.innerHTML = reports.map(r => `
-                <div class="border rounded-2xl p-4 bg-white space-y-3 shadow-xs">
-                    <div class="flex justify-between items-start">
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-white shadow-xs space-y-3.5 transition hover:shadow-md">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
-                            <span class="text-xs font-black text-blue-700 uppercase">Area : ${r.area}</span>
-                            <p class="text-[11px] text-slate-400">Pelapor: ${r.pelapor} • ${r.tanggalLaporan}</p>
+                            <span class="text-xs font-black text-blue-700 uppercase tracking-wide"><i class="fa-solid fa-location-dot mr-1"></i> Area : ${r.area}</span>
+                            <div class="flex flex-wrap items-center gap-x-2 text-[11px] text-slate-400 mt-0.5">
+                                <span><i class="fa-solid fa-user mr-0.5"></i> Pelapor: <strong class="text-slate-600">${r.pelapor}</strong></span>
+                                <span>•</span>
+                                <span><i class="fa-regular fa-calendar mr-0.5"></i> ${r.tanggalLaporan || '-'}</span>
+                            </div>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.status || 'Menunggu Tindak Lanjut'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${r.status}
+                            </span>
+                            ${currentUser.role === 'admin' ? `
+                                <button onclick="deleteReport(${r.id})" class="no-print text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition" title="Hapus Laporan">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    <div class="text-sm bg-slate-50 p-3 rounded-xl">${r.keterangan}</div>
+
+                    <div class="text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span class="font-bold text-xs text-slate-500 block mb-0.5">Keterangan :</span>
+                        ${r.keterangan}
+                    </div>
+
+                    <!-- Foto Temuan -->
                     <div>
-                        <img src="${r.photo}" onclick="openPhotoModal('${r.photo}')" class="w-28 h-20 object-cover rounded-xl cursor-pointer border" crossorigin="anonymous">
+                        <span class="text-xs font-bold text-slate-500 block mb-1.5">Upload Foto :</span>
+                        <img src="${r.photo}" onclick="openPhotoModal('${r.photo}')" class="w-28 h-20 object-cover rounded-xl border border-slate-200 cursor-pointer hover:opacity-90 transition shadow-xs" alt="Foto Laporan">
                     </div>
-                    <div class="border-t pt-3">
-                        <span class="text-xs font-bold text-indigo-700 uppercase">Tindak Lanjut :</span>
-                        ${r.tindakLanjut ? `<p class="text-sm bg-indigo-50 p-3 rounded-xl mt-1">${r.tindakLanjut}</p>` : `<p class="text-xs text-slate-400 italic mt-1">Belum ada tindak lanjut.</p>`}
-                        ${currentUser.role === 'admin' && !r.tindakLanjut ? `
-                            <form onsubmit="submitFollowUp(event, '${r.id}')" class="no-print mt-2 space-y-2">
-                                <input type="text" id="tindak-${r.id}" placeholder="Tulis tindak lanjut..." required class="w-full px-3 py-1.5 border rounded-xl text-xs">
-                                <input type="file" id="dok-${r.id}" accept="image/*" class="w-full text-xs">
-                                <button type="submit" class="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl font-bold">Simpan</button>
+
+                    <!-- Tindak Lanjut Section -->
+                    <div class="border-t border-slate-100 pt-3.5 mt-2">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1.5">
+                            <span class="text-xs font-bold text-indigo-700 uppercase"><i class="fa-solid fa-list-check mr-1"></i> Tindak Lanjut :</span>
+                            ${r.tanggalTindakLanjut ? `<span class="text-[11px] text-slate-400"><i class="fa-regular fa-calendar mr-0.5"></i> ${r.tanggalTindakLanjut}</span>` : ''}
+                        </div>
+                        
+                        ${r.tindakLanjut ? `
+                            <p class="text-sm text-slate-700 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 mb-2.5">${r.tindakLanjut}</p>${r.dokumentasi ? `
+                                <span class="text-xs font-bold text-slate-500 block mb-1.5">Dokumentasi :</span>
+                                <img src="${r.dokumentasi}" onclick="openPhotoModal('${r.dokumentasi}')" class="w-28 h-20 object-cover rounded-xl border border-slate-200 cursor-pointer hover:opacity-90 transition shadow-xs" alt="Dokumentasi">
+                            ` : ''}
+                        ` : `
+                            <p class="text-xs text-slate-400 italic mb-2">Belum ada tindak lanjut.</p>
+                        `}
+
+                        ${currentUser.role === 'admin' ? `
+                            <form onsubmit="submitFollowUp(event, ${r.id})" class="no-print mt-3 space-y-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                                <input type="text" id="tindak-${r.id}" placeholder="Tulis tindak lanjut..." value="${r.tindakLanjut}" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Dokumentasi Perbaikan:</label>
+                                    <input type="file" id="dok-${r.id}" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700">
+                                </div>
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-xs">
+                                    Simpan Tindak Lanjut
+                                </button>
                             </form>
                         ` : ''}
                     </div>
@@ -299,37 +450,104 @@
             `).join('');
         }
 
-        async function submitFollowUp(e, id) {
+        // Admin Simpan Tindak Lanjut
+        function submitFollowUp(e, id) {
             e.preventDefault();
             const tindakLanjutText = document.getElementById(`tindak-${id}`).value;
             const dokInput = document.getElementById(`dok-${id}`);
-            let dokUrl = "";
 
-            if (dokInput.files && dokInput.files[0]) {
-                dokUrl = await uploadToImgBB(dokInput.files[0]);
-            }
+            const reportIndex = reports.findIndex(r => r.id === id);
+            if (reportIndex === -1) return;
 
-            const followUpData = {
-                action: 'updateFollowUp',
-                id: id,
-                tindakLanjut: tindakLanjutText,
-                tanggalTindakLanjut: new Date().toLocaleDateString('id-ID'),
-                dokumentasi: dokUrl
+            const updateData = (photoVal) => {
+                reports[reportIndex].tindakLanjut = tindakLanjutText;
+                reports[reportIndex].tanggalTindakLanjut = getFormattedDateTime();
+                if (photoVal) reports[reportIndex].dokumentasi = photoVal;
+                reports[reportIndex].status = "Selesai";
+                localStorage.setItem('chse_reports', JSON.stringify(reports));
+                renderReports();
+                alert('Tindak lanjut berhasil diperbarui!');
             };
 
-            const queryString = new URLSearchParams(followUpData).toString();
-            await fetch(`${API_URL}?${queryString}`, { method: 'GET' });
-
-            alert('Tindak lanjut berhasil diperbarui dan disinkronkan!');
-            await fetchDataFromServer(false);
+            if (dokInput.files && dokInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateData(e.target.result);
+                }
+                reader.readAsDataURL(dokInput.files[0]);
+            } else {
+                updateData(null);
+            }
         }
 
-        function downloadPDF() {
-            html2pdf().from(document.getElementById('printable-area')).save(`laporan_chse_${Date.now()}.pdf`);
+        // Hapus Laporan (Admin)
+        function deleteReport(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
+                reports = reports.filter(r => r.id !== id);
+                localStorage.setItem('chse_reports', JSON.stringify(reports));
+                renderReports();
+            }
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        // Admin Tambah Akun
+        function addUserAccount(e) {
+            e.preventDefault();
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value.trim();
+            const role = document.getElementById('new-role').value;
+
+            if(users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                alert('Username sudah terdaftar!');
+                return;
+            }
+
+            users.push({ username, password, role });
+            localStorage.setItem('chse_users', JSON.stringify(users));
+            alert(`Akun ${username} berhasil ditambahkan!`);
+            closeModal('add-account-modal');
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-password').value = '';
+        }
+
+        // Admin Ganti Password dengan PIN (070707)
+        function changePassword(e) {
+            e.preventDefault();
+            const targetUsername = document.getElementById('target-username').value.trim();
+            const newPass = document.getElementById('updated-password').value.trim();
+            const pin = document.getElementById('security-pin').value.trim();
+
+            if (pin !== CORRECT_PIN) {
+                alert('PIN Verifikasi salah!');
+                return;
+            }
+
+            const userObj = users.find(u => u.username.toLowerCase() === targetUsername.toLowerCase());
+            if (!userObj) {
+                alert('Username tidak ditemukan!');
+                return;
+            }
+
+            userObj.password = newPass;
+            localStorage.setItem('chse_users', JSON.stringify(users));
+            alert(`Password untuk akun ${targetUsername} berhasil diubah!`);
+            closeModal('change-pass-modal');
+            document.getElementById('target-username').value = '';
+            document.getElementById('updated-password').value = '';
+            document.getElementById('security-pin').value = '';
+        }
+
+        // Save File Data (Backup JSON)
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reports));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `data_monitoring_chse_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Modal Handler Foto
         function openPhotoModal(url) {
             document.getElementById('modal-img-element').src = url;
             document.getElementById('photo-modal').classList.remove('hidden');
