@@ -141,7 +141,7 @@
                         <p class="text-xs text-slate-500">Tanggal Cetak: <span x-text="getWIBDateStr()"></span></p>
                     </div>
 
-                    <!-- TABEL KHUSUS MODEL FORMAT CETAK REKAP LAPORAN (PELAPOR SETELAH AREA) -->
+                    <!-- TABEL KHUSUS MODEL FORMAT CETAK REKAP LAPORAN -->
                     <table class="hidden print-table w-full text-left border-collapse border border-slate-300 my-2">
                         <thead>
                             <tr class="bg-slate-100 uppercase text-[10px] font-bold text-slate-700">
@@ -188,7 +188,7 @@
                             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
                                 <div class="flex justify-between items-start">
                                     <div class="space-y-1.5">
-                                        <!-- Tampilan Area Dulu, Lalu Pelapor Sesuai Permintaan -->
+                                        <!-- Tampilan Area dan Nama Pelapor Hasil Ketikan Manual -->
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100" x-text="'📍 Area: ' + item.area"></span>
                                             <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full border border-slate-200" x-text="'👤 Pelapor: ' + (item.pelapor || item.username || currentUser)"></span>
@@ -280,7 +280,7 @@
                         </template>
                     </div>
 
-                    <!-- TAB 2: TAMBAH LAPORAN (AREA DULU, LALU DROPDOWN PELAPOR) -->
+                    <!-- TAB 2: TAMBAH LAPORAN (PELAPOR DIKETIK MANUAL SEPERTI AREA) -->
                     <div x-show="activeTab === 'add'" class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-3 pb-6 max-w-xl mx-auto w-full no-print">
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
@@ -289,13 +289,9 @@
                                 <input type="text" x-model="newReport.area" required placeholder="Contoh: Toilet Lantai 2 / Kantin..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900">
                             </div>
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor :</label>
-                                <!-- Dropdown Pelapor Mengambil Data Akun dari Accounts -->
-                                <select x-model="newReport.pelapor" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900 font-semibold text-slate-700">
-                                    <template x-for="acc in accounts" :key="acc.username">
-                                        <option :value="acc.username" x-text="acc.username" :selected="acc.username === currentUser"></option>
-                                    </template>
-                                </select>
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Nama Pelapor :</label>
+                                <!-- Input Teks Biasa untuk Mengetik Nama Pelapor Secara Manual -->
+                                <input type="text" x-model="newReport.pelapor" required placeholder="Ketik nama pelapor..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900">
                             </div>
                             <div>
                                 <label class="block font-semibold uppercase text-slate-500 mb-1">Keterangan :</label>
@@ -520,7 +516,7 @@
                     if (found) {
                         this.role = found.role;
                         this.currentUser = found.username;
-                        this.newReport.pelapor = found.username;
+                        this.newReport.pelapor = found.username; // Mengisi default input dengan nama akun login
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -543,17 +539,15 @@
                 },
 
                 async submitReportDirect() {
-                    if(!this.newReport.area || !this.newReport.keterangan) return;
+                    if(!this.newReport.area || !this.newReport.keterangan || !this.newReport.pelapor) return;
                     this.loading = true;
                     this.loadingText = 'Menyimpan laporan...';
-
-                    const selectedPelapor = this.newReport.pelapor || this.currentUser;
 
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
-                        username: selectedPelapor,
-                        pelapor: selectedPelapor,
+                        username: this.newReport.pelapor,
+                        pelapor: this.newReport.pelapor,
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
