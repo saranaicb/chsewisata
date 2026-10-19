@@ -137,7 +137,7 @@
                                     <div>
                                         <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full" x-text="item.area"></span>
                                         <div class="text-xs text-slate-400 mt-1.5">
-                                            <!-- Menampilkan nama akun pelapor -->
+                                            <!-- Menampilkan nama akun pelapor secara otomatis -->
                                             Pelapor: <span class="font-bold text-slate-700" x-text="item.username || item.pelapor || currentUser"></span> | <span x-text="item.date"></span>
                                         </div>
                                     </div>
@@ -229,11 +229,12 @@
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor (Nama Akun):</label>
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor (Otomatis terisi dari akun):</label>
+                                <!-- Mengunci bidang pelapor sehingga otomatis mengambil data akun aktif -->
                                 <input type="text" :value="currentUser" disabled class="w-full p-3 bg-slate-100 font-bold border border-slate-200 rounded-lg text-slate-700 cursor-not-allowed">
                             </div>
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Area :</label>
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Area / Lokasi :</label>
                                 <input type="text" x-model="newReport.area" required placeholder="Contoh: Toilet Lantai 2 / Kantin..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900">
                             </div>
                             <div>
@@ -484,7 +485,7 @@
                     this.loading = true;
                     this.loadingText = 'Menyimpan laporan...';
 
-                    // Mengirimkan username pelapor secara eksplisit
+                    // Mengirimkan username pengguna yang aktif login secara otomatis
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
