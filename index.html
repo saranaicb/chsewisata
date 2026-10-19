@@ -35,7 +35,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased flex justify-center items-center min-h-screen p-0 sm:p-4" x-data="app()">
 
-    <!-- CONTAINER UTAMA (Responsive: Fullscreen di HP, Panel Lebar di Laptop/PC) -->
+    <!-- CONTAINER UTAMA -->
     <div class="w-full h-screen sm:h-[88vh] sm:max-w-3xl bg-white shadow-none sm:shadow-2xl rounded-none sm:rounded-2xl flex flex-col relative overflow-hidden">
 
         <!-- MODAL FULL VIEW GAMBAR -->
@@ -65,7 +65,6 @@
         <template x-if="page === 'login'">
             <div class="flex-1 flex flex-col justify-center px-6 py-12 bg-gradient-to-b from-blue-900 to-indigo-900 text-white overflow-y-auto">
                 <div class="text-center mb-6 mt-4">
-                    <!-- Logo CHSE SMK ICB Cinta Wisata -->
                     <div class="w-24 h-24 mx-auto mb-3 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-indigo-400 overflow-hidden">
                         <img src="https://i.ibb.co.com/DHmRPRpZ/logo-chse.jpg" alt="Logo CHSE SMK ICB Cinta Wisata" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&w=200&q=80'">
                     </div>
@@ -124,7 +123,7 @@
                 <!-- Content Area -->
                 <div class="flex-1 p-3 sm:p-6 overflow-y-auto space-y-3" id="printable-area">
                     
-                    <!-- Judul Khusus Cetak (Tanpa Kop Surat) -->
+                    <!-- Judul Khusus Cetak -->
                     <div class="hidden print:block mb-4 border-b pb-2">
                         <h1 class="text-base font-bold text-slate-900">REKAP LAPORAN MONITORING AREA CHSE</h1>
                         <p class="text-xs text-slate-500">Tanggal Cetak: <span x-text="getWIBDateStr()"></span></p>
@@ -138,7 +137,7 @@
                                     <div>
                                         <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full" x-text="item.area"></span>
                                         <div class="text-xs text-slate-400 mt-1.5">
-                                            Oleh: <span class="font-bold text-slate-700" x-text="item.username || 'Sistem'"></span> | <span x-text="item.date"></span>
+                                            Oleh: <span class="font-bold text-slate-700" x-text="item.username || 'Tanpa Nama'"></span> | <span x-text="item.date"></span>
                                         </div>
                                     </div>
                                     <span class="text-xs font-bold px-2.5 py-1 rounded" :class="item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" x-text="item.status"></span>
@@ -149,11 +148,15 @@
                                     <p class="text-sm text-slate-700 mt-0.5" x-text="item.keterangan"></p>
                                 </div>
 
-                                <!-- Foto Laporan -->
-                                <template x-if="item.foto">
+                                <!-- Galeri Foto Laporan (Multiple) -->
+                                <template x-if="getImagesArray(item.foto).length > 0">
                                     <div>
                                         <p class="text-xs font-medium text-slate-400 mb-1">Foto Laporan (ketuk untuk memperbesar):</p>
-                                        <img :src="item.foto" @click="openFullImage(item.foto)" class="w-full h-40 sm:h-48 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-95 transition">
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            <template x-for="(imgSrc, imgIndex) in getImagesArray(item.foto)" :key="imgIndex">
+                                                <img :src="imgSrc" @click="openFullImage(imgSrc)" class="w-full h-28 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-95 transition">
+                                            </template>
+                                        </div>
                                     </div>
                                 </template>
 
@@ -163,45 +166,45 @@
                                         <div class="space-y-1.5 bg-slate-50 p-3 rounded-lg text-xs sm:text-sm">
                                             <p class="font-bold text-indigo-900">Tindak Lanjut Admin:</p>
                                             <p class="text-slate-600" x-text="item.tindakLanjut"></p>
-                                            <template x-if="item.dokTindakLanjut">
+                                            <template x-if="getImagesArray(item.dokTindakLanjut).length > 0">
                                                 <div>
                                                     <p class="text-xs font-medium text-slate-400 mt-1.5">Dokumentasi Tindak Lanjut (ketuk untuk memperbesar):</p>
-                                                    <img :src="item.dokTindakLanjut" @click="openFullImage(item.dokTindakLanjut)" class="w-full h-36 object-cover rounded mt-1.5 cursor-pointer hover:opacity-95 transition">
+                                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1">
+                                                        <template x-for="(imgSrc, imgIndex) in getImagesArray(item.dokTindakLanjut)" :key="imgIndex">
+                                                            <img :src="imgSrc" @click="openFullImage(imgSrc)" class="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-95 transition">
+                                                        </template>
+                                                    </div>
                                                 </div>
                                             </template>
                                         </div>
                                     </template>
 
-                                    <!-- Form Tindak Lanjut & Upload Gambar (Khusus Admin jika belum ada) -->
+                                    <!-- Form Tindak Lanjut & Upload Gambar (Khusus Admin) -->
                                     <template x-if="role === 'admin' && !item.tindakLanjut">
-                                        <div class="space-y-2.5 bg-blue-50/60 p-3 rounded-lg border border-blue-100 text-xs sm:text-sm no-print" x-data="{ tindakText: '', imageBase64: '', tempPreview: '' }">
+                                        <div class="space-y-2.5 bg-blue-50/60 p-3 rounded-lg border border-blue-100 text-xs sm:text-sm no-print" x-data="{ tindakText: '', imageBase64List: [], tempPreviews: [] }">
                                             <p class="font-bold text-blue-900">Tambah Tindak Lanjut :</p>
                                             <textarea x-model="tindakText" placeholder="Tulis tindakan..." rows="2" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none"></textarea>
                                             
                                             <div>
-                                                <label class="block font-semibold text-blue-900 mb-1">Upload Gambar / Dokumentasi :</label>
-                                                <input type="file" @change="(e) => {
-                                                    const f = e.target.files[0];
-                                                    if(f) {
-                                                        processImageNormal(f, (base64) => {
-                                                            imageBase64 = base64;
-                                                            tempPreview = base64;
-                                                        });
-                                                    }
-                                                }" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700">
-                                                <template x-if="tempPreview">
-                                                    <img :src="tempPreview" class="mt-2 w-full h-32 object-cover rounded border">
+                                                <label class="block font-semibold text-blue-900 mb-1">Upload Gambar / Dokumentasi (Bisa pilih beberapa):</label>
+                                                <input type="file" multiple @change="(e) => handleMultipleFiles(e, (base64Array) => { imageBase64List = base64Array; tempPreviews = base64Array; })" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700">
+                                                <template x-if="tempPreviews.length > 0">
+                                                    <div class="grid grid-cols-3 gap-2 mt-2">
+                                                        <template x-for="(prev, pIdx) in tempPreviews" :key="pIdx">
+                                                            <img :src="prev" class="w-full h-20 object-cover rounded border">
+                                                        </template>
+                                                    </div>
                                                 </template>
                                             </div>
 
-                                            <button @click="submitTindakLanjutDirect(item, tindakText, imageBase64)" class="w-full py-2 bg-blue-900 text-white rounded-lg font-bold shadow hover:bg-blue-800 transition">
+                                            <button @click="submitTindakLanjutDirect(item, tindakText, JSON.stringify(imageBase64List))" class="w-full py-2 bg-blue-900 text-white rounded-lg font-bold shadow hover:bg-blue-800 transition">
                                                 Simpan Tindak Lanjut
                                             </button>
                                         </div>
                                     </template>
                                 </div>
 
-                                <!-- Tombol Aksi (Save & Cetak + Hapus khusus Admin) -->
+                                <!-- Tombol Aksi -->
                                 <div class="pt-2 flex gap-2 no-print">
                                     <button @click="saveAndPrint(item)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-1.5">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -225,6 +228,11 @@
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
                             <div>
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor :</label>
+                                <!-- Tampilan Nama Akun yang Login -->
+                                <input type="text" :value="currentUser" disabled class="w-full p-3 bg-slate-100 font-bold border border-slate-200 rounded-lg text-slate-600 cursor-not-allowed">
+                            </div>
+                            <div>
                                 <label class="block font-semibold uppercase text-slate-500 mb-1">Area :</label>
                                 <input type="text" x-model="newReport.area" required placeholder="Contoh: Toilet Lantai 2 / Kantin..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900">
                             </div>
@@ -233,18 +241,15 @@
                                 <textarea x-model="newReport.keterangan" required rows="3" placeholder="Deskripsikan kondisi..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none"></textarea>
                             </div>
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Upload Foto :</label>
-                                <input type="file" @change="(e) => { 
-                                    const f = e.target.files[0];
-                                    if(f) {
-                                        processImageNormal(f, (base64) => {
-                                            newReport.imageBase64 = base64;
-                                            newReport.preview = base64;
-                                        });
-                                    }
-                                }" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
-                                <template x-if="newReport.preview">
-                                    <img :src="newReport.preview" @click="openFullImage(newReport.preview)" class="mt-3 w-full h-40 object-cover rounded-lg border cursor-pointer">
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Upload Foto (Bisa pilih lebih dari satu foto):</label>
+                                <input type="file" multiple @change="(e) => handleMultipleFiles(e, (base64Array) => { newReport.imagesBase64 = base64Array; newReport.previews = base64Array; })" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
+                                
+                                <template x-if="newReport.previews.length > 0">
+                                    <div class="grid grid-cols-3 gap-2 mt-3">
+                                        <template x-for="(prev, pIdx) in newReport.previews" :key="pIdx">
+                                            <img :src="prev" @click="openFullImage(prev)" class="w-full h-24 object-cover rounded-lg border cursor-pointer">
+                                        </template>
+                                    </div>
                                 </template>
                             </div>
                             <button type="submit" class="w-full py-3 bg-blue-900 text-white rounded-lg font-bold shadow hover:bg-blue-800 transition">
@@ -366,6 +371,24 @@
             };
         }
 
+        function handleMultipleFiles(e, callback) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+
+            let processed = [];
+            let count = 0;
+
+            files.forEach((file, index) => {
+                processImageNormal(file, (base64) => {
+                    processed[index] = base64;
+                    count++;
+                    if (count === files.length) {
+                        callback(processed);
+                    }
+                });
+            });
+        }
+
         function app() {
             return {
                 page: 'login',
@@ -383,12 +406,22 @@
                 securityPin: '070707',
                 enteredPin: '',
                 loginForm: { username: '', password: '' },
-                newReport: { area: '', keterangan: '', imageBase64: '', preview: '' },
+                newReport: { area: '', keterangan: '', imagesBase64: [], previews: [] },
                 formNewUser: { username: '', password: '', role: 'user' },
                 formChangePass: { username: '', newPassword: '' },
 
                 init() {
                     this.fetchData();
+                },
+
+                getImagesArray(photoData) {
+                    if (!photoData) return [];
+                    try {
+                        const parsed = JSON.parse(photoData);
+                        return Array.isArray(parsed) ? parsed : [photoData];
+                    } catch (e) {
+                        return [photoData];
+                    }
                 },
 
                 getWIBDateStr() {
@@ -455,7 +488,7 @@
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
-                        foto: this.newReport.imageBase64 || '',
+                        foto: JSON.stringify(this.newReport.imagesBase64 || []),
                         status: 'Pending',
                         tindakLanjut: '',
                         dokTindakLanjut: ''
@@ -464,7 +497,7 @@
                     try {
                         await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                         this.loading = false;
-                        this.newReport = { area: '', keterangan: '', imageBase64: '', preview: '' };
+                        this.newReport = { area: '', keterangan: '', imagesBase64: [], previews: [] };
                         this.activeTab = 'list';
                         this.fetchData();
                     } catch (err) {
@@ -473,7 +506,7 @@
                     }
                 },
 
-                async submitTindakLanjutDirect(item, text, imageBase64) {
+                async submitTindakLanjutDirect(item, text, imageBase64Data) {
                     if(!text) return;
                     this.loading = true;
                     this.loadingText = 'Menyimpan tindak lanjut...';
@@ -483,7 +516,7 @@
                         id: item.id,
                         status: 'Selesai',
                         tindakLanjut: text,
-                        dokTindakLanjut: imageBase64 || ''
+                        dokTindakLanjut: imageBase64Data || ''
                     };
 
                     try {
