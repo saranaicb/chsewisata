@@ -135,10 +135,10 @@
                             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
                                 <div class="flex justify-between items-start">
                                     <div class="space-y-1.5">
-                                        <!-- Tampilan Area & Pelapor dalam format Badge/Tag -->
+                                        <!-- Tampilan Area & Pelapor (Username dari Sheet) -->
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100" x-text="'📍 ' + item.area"></span>
-                                            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full border border-slate-200" x-text="'👤 ' + (item.pelapor || item.username || currentUser)"></span>
+                                            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full border border-slate-200" x-text="'👤 ' + (item.username || item.pelapor || currentUser)"></span>
                                         </div>
                                         <div class="text-xs text-slate-400">
                                             Waktu: <span x-text="item.date"></span>
@@ -232,8 +232,8 @@
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor :</label>
-                                <!-- Dropdown Pelapor Mengambil Data dari Accounts -->
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor / Username :</label>
+                                <!-- Dropdown Mengambil Daftar Akun & Auto Select Akun Login -->
                                 <select x-model="newReport.pelapor" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900 font-semibold text-slate-700">
                                     <template x-for="acc in accounts" :key="acc.username">
                                         <option :value="acc.username" x-text="acc.username" :selected="acc.username === currentUser"></option>
@@ -466,7 +466,7 @@
                     if (found) {
                         this.role = found.role;
                         this.currentUser = found.username;
-                        this.newReport.pelapor = found.username; // Mengatur nilai awal dropdown pelapor
+                        this.newReport.pelapor = found.username;
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -493,7 +493,6 @@
                     this.loading = true;
                     this.loadingText = 'Menyimpan laporan...';
 
-                    // Mengambil nilai pelapor dari dropdown, fallback ke currentUser jika belum terpilih
                     const pelaporSelected = this.newReport.pelapor || this.currentUser;
 
                     const payload = {
