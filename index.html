@@ -137,7 +137,7 @@
                                     <div>
                                         <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full" x-text="item.area"></span>
                                         <div class="text-xs text-slate-400 mt-1.5">
-                                            Oleh: <span class="font-bold text-slate-700" x-text="item.username || 'Tanpa Nama'"></span> | <span x-text="item.date"></span>
+                                            Oleh: <span class="font-bold text-slate-700" x-text="item.username || item.pelapor || 'Tanpa Nama'"></span> | <span x-text="item.date"></span>
                                         </div>
                                     </div>
                                     <span class="text-xs font-bold px-2.5 py-1 rounded" :class="item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'" x-text="item.status"></span>
@@ -148,7 +148,7 @@
                                     <p class="text-sm text-slate-700 mt-0.5" x-text="item.keterangan"></p>
                                 </div>
 
-                                <!-- Galeri Foto Laporan (Multiple) -->
+                                <!-- Galeri Foto Laporan (Multi Foto Support) -->
                                 <template x-if="getImagesArray(item.foto).length > 0">
                                     <div>
                                         <p class="text-xs font-medium text-slate-400 mb-1">Foto Laporan (ketuk untuk memperbesar):</p>
@@ -179,7 +179,7 @@
                                         </div>
                                     </template>
 
-                                    <!-- Form Tindak Lanjut & Upload Gambar (Khusus Admin) -->
+                                    <!-- Form Tindak Lanjut & Multi Upload Gambar (Khusus Admin) -->
                                     <template x-if="role === 'admin' && !item.tindakLanjut">
                                         <div class="space-y-2.5 bg-blue-50/60 p-3 rounded-lg border border-blue-100 text-xs sm:text-sm no-print" x-data="{ tindakText: '', imageBase64List: [], tempPreviews: [] }">
                                             <p class="font-bold text-blue-900">Tambah Tindak Lanjut :</p>
@@ -228,9 +228,8 @@
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor :</label>
-                                <!-- Tampilan Nama Akun yang Login -->
-                                <input type="text" :value="currentUser" disabled class="w-full p-3 bg-slate-100 font-bold border border-slate-200 rounded-lg text-slate-600 cursor-not-allowed">
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor (Nama Akun) :</label>
+                                <input type="text" :value="currentUser" disabled class="w-full p-3 bg-slate-100 font-bold border border-slate-200 rounded-lg text-slate-700 cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block font-semibold uppercase text-slate-500 mb-1">Area :</label>
@@ -241,7 +240,7 @@
                                 <textarea x-model="newReport.keterangan" required rows="3" placeholder="Deskripsikan kondisi..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none"></textarea>
                             </div>
                             <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Upload Foto (Bisa pilih lebih dari satu foto):</label>
+                                <label class="block font-semibold uppercase text-slate-500 mb-1">Upload Foto (Bisa pilih beberapa foto sekaligus):</label>
                                 <input type="file" multiple @change="(e) => handleMultipleFiles(e, (base64Array) => { newReport.imagesBase64 = base64Array; newReport.previews = base64Array; })" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border border-slate-200 rounded-lg p-1.5 bg-slate-50">
                                 
                                 <template x-if="newReport.previews.length > 0">
@@ -344,6 +343,7 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZY_54xQw40t00fIFNTOfEj0n6TStGT3z1rwy9Or0pxmBpewv6mcRsPkM6APKbveBb/exec';
 
+        // Proses kompresi single image
         function processImageNormal(file, callback, maxWidth = 1280, quality = 0.85) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -371,6 +371,7 @@
             };
         }
 
+        // Memproses multiple file gambar
         function handleMultipleFiles(e, callback) {
             const files = Array.from(e.target.files);
             if (!files.length) return;
@@ -414,6 +415,7 @@
                     this.fetchData();
                 },
 
+                // Mengekstrak foto tunggal/array dari string JSON atau teks biasa
                 getImagesArray(photoData) {
                     if (!photoData) return [];
                     try {
@@ -481,10 +483,12 @@
                     this.loading = true;
                     this.loadingText = 'Menyimpan laporan...';
 
+                    // Mengirimkan username akun yang sedang aktif/login sebagai nama pelapor
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
                         username: this.currentUser,
+                        pelapor: this.currentUser,
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
