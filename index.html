@@ -12,7 +12,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* CSS Khusus Cetak/Print */
+        /* CSS Khusus Cetak / Print */
         @media print {
             body * {
                 visibility: hidden;
@@ -142,13 +142,12 @@
                         <p class="text-xs text-slate-500">Tanggal Cetak: <span x-text="getWIBDateStr()"></span></p>
                     </div>
 
-                    <!-- TABEL KHUSUS MODEL FORMAT CETAK LAPORAN UTOH -->
+                    <!-- TABEL KHUSUS MODEL FORMAT CETAK REKAP LAPORAN -->
                     <table class="hidden print-table w-full text-left border-collapse border border-slate-300 my-2">
                         <thead>
                             <tr class="bg-slate-100 uppercase text-[10px] font-bold text-slate-700">
                                 <th class="border border-slate-300 p-2">No</th>
                                 <th class="border border-slate-300 p-2">Tanggal & Waktu</th>
-                                <th class="border border-slate-300 p-2">Pelapor</th>
                                 <th class="border border-slate-300 p-2">Area / Lokasi</th>
                                 <th class="border border-slate-300 p-2">Keterangan</th>
                                 <th class="border border-slate-300 p-2">Status</th>
@@ -160,8 +159,7 @@
                                 <tr>
                                     <td class="border border-slate-300 p-2 text-center" x-text="rIdx + 1"></td>
                                     <td class="border border-slate-300 p-2" x-text="rpt.date"></td>
-                                    <td class="border border-slate-300 p-2 font-bold" x-text="rpt.username || rpt.pelapor || currentUser"></td>
-                                    <td class="border border-slate-300 p-2" x-text="rpt.area"></td>
+                                    <td class="border border-slate-300 p-2 font-bold" x-text="rpt.area"></td>
                                     <td class="border border-slate-300 p-2" x-text="rpt.keterangan"></td>
                                     <td class="border border-slate-300 p-2 text-center font-bold" x-text="rpt.status"></td>
                                     <td class="border border-slate-300 p-2" x-text="rpt.tindakLanjut || '-'"></td>
@@ -189,10 +187,9 @@
                             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
                                 <div class="flex justify-between items-start">
                                     <div class="space-y-1.5">
-                                        <!-- Tampilan Area & Username Pelapor -->
-                                        <div class="flex flex-wrap items-center gap-1.5">
-                                            <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100" x-text="'📍 ' + item.area"></span>
-                                            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full border border-slate-200" x-text="'👤 Pelapor: ' + (item.username || item.pelapor || currentUser)"></span>
+                                        <!-- Tampilan Area -->
+                                        <div>
+                                            <span class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100" x-text="item.area"></span>
                                         </div>
                                         <div class="text-xs text-slate-400">
                                             Waktu: <span x-text="item.date"></span>
@@ -285,15 +282,6 @@
                     <div x-show="activeTab === 'add'" class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-3 pb-6 max-w-xl mx-auto w-full no-print">
                         <h3 class="font-bold text-sm sm:text-base text-slate-800 border-b pb-2">Form Laporan Area CHSE</h3>
                         <form @submit.prevent="submitReportDirect()" class="space-y-4 text-xs sm:text-sm">
-                            <div>
-                                <label class="block font-semibold uppercase text-slate-500 mb-1">Pelapor / Username :</label>
-                                <!-- Dropdown Pelapor Mengambil Data Akun -->
-                                <select x-model="newReport.pelapor" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900 font-semibold text-slate-700">
-                                    <template x-for="acc in accounts" :key="acc.username">
-                                        <option :value="acc.username" x-text="acc.username" :selected="acc.username === currentUser"></option>
-                                    </template>
-                                </select>
-                            </div>
                             <div>
                                 <label class="block font-semibold uppercase text-slate-500 mb-1">Area / Lokasi :</label>
                                 <input type="text" x-model="newReport.area" required placeholder="Contoh: Toilet Lantai 2 / Kantin..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-900">
@@ -471,7 +459,7 @@
                 securityPin: '070707',
                 enteredPin: '',
                 loginForm: { username: '', password: '' },
-                newReport: { pelapor: '', area: '', keterangan: '', imagesBase64: [], previews: [] },
+                newReport: { area: '', keterangan: '', imagesBase64: [], previews: [] },
                 formNewUser: { username: '', password: '', role: 'user' },
                 formChangePass: { username: '', newPassword: '' },
 
@@ -521,7 +509,6 @@
                     if (found) {
                         this.role = found.role;
                         this.currentUser = found.username;
-                        this.newReport.pelapor = found.username;
                         this.page = 'dashboard';
                         this.activeTab = 'list';
                         this.loginForm = { username: '', password: '' };
@@ -548,13 +535,10 @@
                     this.loading = true;
                     this.loadingText = 'Menyimpan laporan...';
 
-                    const pelaporSelected = this.newReport.pelapor || this.currentUser;
-
                     const payload = {
                         action: 'addReport',
                         id: 'REP-' + Date.now(),
-                        username: pelaporSelected,
-                        pelapor: pelaporSelected,
+                        username: this.currentUser,
                         date: this.getWIBDateStr(),
                         area: this.newReport.area,
                         keterangan: this.newReport.keterangan,
@@ -567,7 +551,7 @@
                     try {
                         await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                         this.loading = false;
-                        this.newReport = { pelapor: this.currentUser, area: '', keterangan: '', imagesBase64: [], previews: [] };
+                        this.newReport = { area: '', keterangan: '', imagesBase64: [], previews: [] };
                         this.activeTab = 'list';
                         this.fetchData();
                     } catch (err) {
